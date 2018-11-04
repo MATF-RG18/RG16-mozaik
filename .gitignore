@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+
+# Generated file
+rg-16
