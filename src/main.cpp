@@ -43,36 +43,44 @@ int main() {
     // TODO: wrap into a parametrized function
 
     // 20 lines * 2 vertices each * 3 attributes each
-    float vertices[20 * 2 * 3];
+    float grid_vertices[20 * 2 * 3];
 
     for (int i = 0; i < 10; i++) {
         // stride is 3 * 4 <=> 4 vertices have 12 attributes in total
         int offset = i * 3 * 4;
 
         // Start point
-        vertices[offset] = -1.0f + i * 0.2f;        // X
-        vertices[offset + 1] = -1.0f;               // Y
-        vertices[offset + 2] = 0.0f;                // Z
+        grid_vertices[offset] = -1.0f + i * 0.2f;        // X
+        grid_vertices[offset + 1] = -1.0f;               // Y
+        grid_vertices[offset + 2] = 0.0f;                // Z
 
         // End point
-        vertices[offset + 3] = -1.0f + i * 0.2f;    // X
-        vertices[offset + 4] = 1.0f;                // Y
-        vertices[offset + 5] = 0.0f;                // Z
+        grid_vertices[offset + 3] = -1.0f + i * 0.2f;    // X
+        grid_vertices[offset + 4] = 1.0f;                // Y
+        grid_vertices[offset + 5] = 0.0f;                // Z
 
         // Start point
-        vertices[offset + 6] = -1.0f;                // X
-        vertices[offset + 7] = -1.0f + i * 0.2f;     // Y
-        vertices[offset + 8] = 0.0f;                 // Z
+        grid_vertices[offset + 6] = -1.0f;                // X
+        grid_vertices[offset + 7] = -1.0f + i * 0.2f;     // Y
+        grid_vertices[offset + 8] = 0.0f;                 // Z
 
         // End point
-        vertices[offset + 9] = 1.0f;                  // X
-        vertices[offset + 10] = -1.0f + i * 0.2f;     // Y
-        vertices[offset + 11] = 0.0f;                 // Z
+        grid_vertices[offset + 9] = 1.0f;                  // X
+        grid_vertices[offset + 10] = -1.0f + i * 0.2f;     // Y
+        grid_vertices[offset + 11] = 0.0f;                 // Z
     }
 
-    // Static draw because data is written once and used many times.
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    // Test triangle
+    float triangle_vertices[] = {
+            -0.5f, -0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f,
+            0.0f, 0.5f, 0.0f
+    };
 
+    // Static draw because data is written once and used many times.
+    glBufferData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(triangle_vertices), nullptr, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(grid_vertices), grid_vertices);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(grid_vertices), sizeof(triangle_vertices), triangle_vertices);
     // Initialize shaders
     GLuint shader_program = init_shaders();
 
@@ -84,6 +92,7 @@ int main() {
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         glDrawArrays(GL_LINES, 0, 40);
+        glDrawArrays(GL_TRIANGLES, 40, 3);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
