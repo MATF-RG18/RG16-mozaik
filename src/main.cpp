@@ -70,17 +70,30 @@ int main() {
         grid_vertices[offset + 11] = 0.0f;                 // Z
     }
 
-    // Test triangle
-    float triangle_vertices[] = {
+    // Test triangle vertices
+    GLfloat triangle_vertices[] = {
             -0.5f, -0.5f, 0.0f,
             0.5f, -0.5f, 0.0f,
-            0.0f, 0.5f, 0.0f
+            0.0f, 0.5f, 0.0f,
+            -1.0f, 0.5f, 0.0f
     };
 
     // Static draw because data is written once and used many times.
     glBufferData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(triangle_vertices), nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(grid_vertices), grid_vertices);
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(grid_vertices), sizeof(triangle_vertices), triangle_vertices);
+
+    GLuint triangle_elements[] = {
+            0, 1, 2, // first triangle indices
+            0, 2, 3  // second triangle indices
+    };
+
+    GLuint element_buffer;
+    glGenBuffers(1, &element_buffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+            sizeof(triangle_elements), triangle_elements, GL_STATIC_DRAW);
+
     // Initialize shaders
     GLuint shader_program = init_shaders();
 
@@ -91,8 +104,10 @@ int main() {
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
+        // Draw the grid
         glDrawArrays(GL_LINES, 0, 40);
-        glDrawArrays(GL_TRIANGLES, 40, 3);
+        // Draw the triangles
+        glDrawElementsBaseVertex(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, 40);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
