@@ -31,5 +31,6 @@
 *.out
 *.app
 
-# Generated file
-rg-16
+# Built files
+cmake-build-debug/
+build/
