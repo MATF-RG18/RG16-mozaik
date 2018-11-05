@@ -38,7 +38,16 @@ int main() {
     GLuint vertex_buffer;
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    // TODO: buffer vertex array to display vertices.
+
+    // Test triangle
+    float vertices[] = {
+            0.0f,  0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f,
+            -0.5f, -0.5f, 0.0f
+    };
+
+    // Static draw because data is written once and used many times.
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // Initialize shaders
     GLuint shader_program = init_shaders();
@@ -50,7 +59,7 @@ int main() {
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
-        // TODO: draw something.
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
