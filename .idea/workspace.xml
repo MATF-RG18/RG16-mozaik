@@ -93,21 +93,12 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.rg16_mozaik">
+  <component name="RunManager">
     <configuration name="Build All" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" EXPLICIT_BUILD_TARGET_NAME="all">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="rg16_mozaik" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="rg16_mozaik" TARGET_NAME="rg16_mozaik" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="rg16_mozaik" RUN_TARGET_NAME="rg16_mozaik">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <list>
-      <item itemvalue="Application.Build All" />
-      <item itemvalue="Application.rg16_mozaik" />
-    </list>
   </component>
   <component name="SvnConfiguration">
     <configuration />

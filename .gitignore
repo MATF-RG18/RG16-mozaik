@@ -31,6 +31,12 @@
 *.out
 *.app
 
+# Temporary files
+*~
+
+# CLion files
+.idea/workspace.xml
+
 # Built files
 cmake-build-debug/
 build/
