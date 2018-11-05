@@ -39,12 +39,36 @@ int main() {
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 
-    // Test triangle
-    float vertices[] = {
-            0.0f,  0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            -0.5f, -0.5f, 0.0f
-    };
+    // Create a grid
+    // TODO: wrap into a parametrized function
+
+    // 20 lines * 2 vertices each * 3 attributes each
+    float vertices[20 * 2 * 3];
+
+    for (int i = 0; i < 10; i++) {
+        // stride is 3 * 4 <=> 4 vertices have 12 attributes in total
+        int offset = i * 3 * 4;
+
+        // Start point
+        vertices[offset] = -1.0f + i * 0.2f;        // X
+        vertices[offset + 1] = -1.0f;               // Y
+        vertices[offset + 2] = 0.0f;                // Z
+
+        // End point
+        vertices[offset + 3] = -1.0f + i * 0.2f;    // X
+        vertices[offset + 4] = 1.0f;                // Y
+        vertices[offset + 5] = 0.0f;                // Z
+
+        // Start point
+        vertices[offset + 6] = -1.0f;                // X
+        vertices[offset + 7] = -1.0f + i * 0.2f;     // Y
+        vertices[offset + 8] = 0.0f;                 // Z
+
+        // End point
+        vertices[offset + 9] = 1.0f;                  // X
+        vertices[offset + 10] = -1.0f + i * 0.2f;     // Y
+        vertices[offset + 11] = 0.0f;                 // Z
+    }
 
     // Static draw because data is written once and used many times.
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -59,7 +83,7 @@ int main() {
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_LINES, 0, 40);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
