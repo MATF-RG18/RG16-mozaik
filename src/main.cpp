@@ -6,6 +6,7 @@
 #include <GL/glew.h>
 #include <iostream>
 #include <GLFW/glfw3.h>
+#include <math.h>
 
 GLuint init_shaders();
 
@@ -70,23 +71,36 @@ int main() {
         grid_vertices[offset + 11] = 0.0f;                 // Z
     }
 
-    // Test triangle vertices
-    GLfloat triangle_vertices[] = {
-            -0.5f, -0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            0.0f, 0.5f, 0.0f,
-            -1.0f, 0.5f, 0.0f
-    };
+    // Fan-like triangle organization, that will evolve into a sphere approximation
+    const unsigned fan_count = 20;
+    GLfloat triangle_vertices[fan_count * 3];
+
+    // Fan hub
+    triangle_vertices[0] = 0.0f; //X
+    triangle_vertices[1] = 0.0f; //Y
+    triangle_vertices[2] = 0.0f; //Z
+
+    for (int i = 0; i < fan_count; i++) {
+        // 3 for the fan hub, and 3 for the each consequent vertex
+        int offset = 3 + i * 3;
+        triangle_vertices[offset] =     static_cast<GLfloat>(cos(2 * M_PI * i / fan_count)); // X
+        triangle_vertices[offset + 1] = static_cast<GLfloat>(sin(2 * M_PI * i / fan_count)); // Y
+        triangle_vertices[offset + 2] = 0.0f;                                        // Z
+    }
 
     // Static draw because data is written once and used many times.
     glBufferData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(triangle_vertices), nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(grid_vertices), grid_vertices);
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(grid_vertices), sizeof(triangle_vertices), triangle_vertices);
 
-    GLuint triangle_elements[] = {
-            0, 1, 2, // first triangle indices
-            0, 2, 3  // second triangle indices
-    };
+    GLuint triangle_elements[fan_count * 3];
+
+    for (unsigned i = 0; i < fan_count; i++) {
+        int offset = i * 3;
+        triangle_elements[offset] = 0; // One element is always the hub
+        triangle_elements[offset + 1] = i + 1;
+        triangle_elements[offset + 2] = i + 2;
+    }
 
     GLuint element_buffer;
     glGenBuffers(1, &element_buffer);
@@ -107,7 +121,7 @@ int main() {
         // Draw the grid
         glDrawArrays(GL_LINES, 0, 40);
         // Draw the triangles
-        glDrawElementsBaseVertex(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, 40);
+        glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(triangle_elements), GL_UNSIGNED_INT, 0, 40);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
