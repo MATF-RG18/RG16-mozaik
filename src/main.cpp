@@ -1,6 +1,30 @@
 #include <iostream>
+#include <GLFW/glfw3.h>
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    //Initialize window framework
+    glfwInit();
+    // OpenGL version 3.2
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    // Using core-profile
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    // Resizing not implemented yet
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+    // Windowed mode
+    GLFWwindow *window = glfwCreateWindow(800, 600, "Mozaik", nullptr, nullptr);
+    // Context must be made current so OpenGL calls can take effect
+    glfwMakeContextCurrent(window);
+
+    // Main loop
+    while (!glfwWindowShouldClose(window)) {
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    glfwTerminate();
+    // TODO: return glError for debugging purposes
     return 0;
 }
