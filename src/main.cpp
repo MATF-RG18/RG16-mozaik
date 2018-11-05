@@ -1,14 +1,13 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedMacroInspection"
 #define GLEW_STATIC
-
-void init_shaders();
-
 #pragma clang diagnostic pop
-#include <GL/glew.h>
 
+#include <GL/glew.h>
 #include <iostream>
 #include <GLFW/glfw3.h>
+
+GLuint init_shaders();
 
 int main() {
     //Initialize window framework
@@ -32,13 +31,22 @@ int main() {
     glewInit();
 
     // Initialize buffers
+    GLuint vertex_array_buffer;
+    glGenVertexArrays(1, &vertex_array_buffer);
+    glBindVertexArray(vertex_array_buffer);
+
     GLuint vertex_buffer;
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
     // TODO: buffer vertex array to display vertices.
 
     // Initialize shaders
-    init_shaders();
+    GLuint shader_program = init_shaders();
+
+    // Make a connection between vertex data and attributes
+    GLuint position_attribute = static_cast<GLuint>(glGetAttribLocation(shader_program, "position"));
+    glVertexAttribPointer(position_attribute, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(position_attribute);
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -53,7 +61,7 @@ int main() {
     return 0;
 }
 
-void init_shaders() {
+GLuint init_shaders() {
     // TODO: move to a file in the future
     const char* vertex_shader_source = R"glsl(
         #version 150 core
@@ -114,4 +122,6 @@ void init_shaders() {
 
     glLinkProgram(shader_program);
     glUseProgram(shader_program);
+
+    return shader_program;
 }
