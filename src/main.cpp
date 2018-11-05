@@ -1,3 +1,9 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedMacroInspection"
+#define GLEW_STATIC
+#pragma clang diagnostic pop
+#include <GL/glew.h>
+
 #include <iostream>
 #include <GLFW/glfw3.h>
 
@@ -17,6 +23,10 @@ int main() {
     GLFWwindow *window = glfwCreateWindow(800, 600, "Mozaik", nullptr, nullptr);
     // Context must be made current so OpenGL calls can take effect
     glfwMakeContextCurrent(window);
+
+    // Initialize GLEW
+    glewExperimental = GL_TRUE;
+    glewInit();
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
