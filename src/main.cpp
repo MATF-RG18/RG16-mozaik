@@ -7,6 +7,9 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <math.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #define ATTR_COUNT 6
 
@@ -147,6 +150,13 @@ int main() {
             GL_FLOAT, GL_FALSE, ATTR_COUNT * sizeof(GLfloat), (void*) (3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(color_attribute);
 
+    // Matrix transformations
+
+    // Model transformation (just a sample one at the moment)
+    glm::mat4 model_trans = glm::mat4(1.0f);
+    model_trans = glm::rotate(model_trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    GLint uniform_model = glGetUniformLocation(shader_program, "model");
+    glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model_trans));
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         // Draw the grid
@@ -173,9 +183,12 @@ GLuint init_shaders() {
         /* flat : the color will be sourced from the provoking vertex. */
         flat out vec3 Color;
 
+        /* transformation matrices */
+        uniform mat4 model;
+
         void main() {
             /* Fourth coordinate is related to clipping and should default to 1.0 */
-            gl_Position = vec4(position, 1.0);
+            gl_Position = model * vec4(position, 1.0);
             Color = color;
         }
     )glsl";
