@@ -8,7 +8,7 @@
 #include <GLFW/glfw3.h>
 #include <math.h>
 
-#define ATTR_COUNT 3
+#define ATTR_COUNT 6
 
 GLuint init_shaders();
 
@@ -56,21 +56,33 @@ int main() {
         grid_vertices[offset] = -1.0f + i * 0.2f;        // X
         grid_vertices[offset + 1] = -1.0f;               // Y
         grid_vertices[offset + 2] = 0.0f;                // Z
+        grid_vertices[offset + 3] = 1.0f;                // R
+        grid_vertices[offset + 4] = 1.0f;                // G
+        grid_vertices[offset + 5] = 1.0f;                // B
 
         // End point
-        grid_vertices[offset + 3] = -1.0f + i * 0.2f;    // X
-        grid_vertices[offset + 4] = 1.0f;                // Y
-        grid_vertices[offset + 5] = 0.0f;                // Z
+        grid_vertices[offset + 6] = -1.0f + i * 0.2f;    // X
+        grid_vertices[offset + 7] = 1.0f;                // Y
+        grid_vertices[offset + 8] = 0.0f;                // Z
+        grid_vertices[offset + 9] = 1.0f;                // R
+        grid_vertices[offset + 10] = 1.0f;               // G
+        grid_vertices[offset + 11] = 1.0f;               // B
 
         // Start point
-        grid_vertices[offset + 6] = -1.0f;                // X
-        grid_vertices[offset + 7] = -1.0f + i * 0.2f;     // Y
-        grid_vertices[offset + 8] = 0.0f;                 // Z
+        grid_vertices[offset + 12] = -1.0f;              // X
+        grid_vertices[offset + 13] = -1.0f + i * 0.2f;   // Y
+        grid_vertices[offset + 14] = 0.0f;               // Z
+        grid_vertices[offset + 15] = 1.0f;               // R
+        grid_vertices[offset + 16] = 1.0f;               // G
+        grid_vertices[offset + 17] = 1.0f;               // B
 
         // End point
-        grid_vertices[offset + 9] = 1.0f;                  // X
-        grid_vertices[offset + 10] = -1.0f + i * 0.2f;     // Y
-        grid_vertices[offset + 11] = 0.0f;                 // Z
+        grid_vertices[offset + 18] = 1.0f;               // X
+        grid_vertices[offset + 19] = -1.0f + i * 0.2f;   // Y
+        grid_vertices[offset + 20] = 0.0f;               // Z
+        grid_vertices[offset + 21] = 1.0f;               // R
+        grid_vertices[offset + 22] = 1.0f;               // G
+        grid_vertices[offset + 23] = 1.0f;               // B
     }
 
     // Fan-like triangle organization, that will evolve into a sphere approximation
@@ -81,13 +93,19 @@ int main() {
     triangle_vertices[0] = 0.0f; //X
     triangle_vertices[1] = 0.0f; //Y
     triangle_vertices[2] = 0.0f; //Z
+    triangle_vertices[3] = 1.0f; //Z
+    triangle_vertices[4] = 1.0f; //Z
+    triangle_vertices[5] = 1.0f; //Z
 
     for (int i = 0; i < fan_count; i++) {
         // attr count for the fan hub, and attr count for the each consequent vertex
         int offset = ATTR_COUNT + i * ATTR_COUNT;
         triangle_vertices[offset] =     static_cast<GLfloat>(cos(2 * M_PI * i / fan_count)); // X
         triangle_vertices[offset + 1] = static_cast<GLfloat>(sin(2 * M_PI * i / fan_count)); // Y
-        triangle_vertices[offset + 2] = 0.0f;                                        // Z
+        triangle_vertices[offset + 2] = 0.0f;                                                // Z
+        triangle_vertices[offset + 3] = 1.0f;                                                // R
+        triangle_vertices[offset + 4] = 1.0f;                                                // G
+        triangle_vertices[offset + 5] = 1.0f;                                                // B
     }
 
     // Static draw because data is written once and used many times.
@@ -120,7 +138,7 @@ int main() {
 
     // Make a connection between vertex data and attributes
     GLuint position_attribute = static_cast<GLuint>(glGetAttribLocation(shader_program, "position"));
-    glVertexAttribPointer(position_attribute, ATTR_COUNT, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glVertexAttribPointer(position_attribute, 3, GL_FLOAT, GL_FALSE, ATTR_COUNT * sizeof(GLfloat), nullptr);
     glEnableVertexAttribArray(position_attribute);
 
     // Main loop
