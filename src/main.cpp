@@ -86,7 +86,7 @@ int main() {
     }
 
     // Fan-like triangle organization, that will evolve into a sphere approximation
-    const unsigned fan_count = 20; // Fan side count
+    const unsigned fan_count = 50; // Fan side count
     GLfloat triangle_vertices[(fan_count + 1) * ATTR_COUNT];
 
     // Fan hub
@@ -103,9 +103,10 @@ int main() {
         triangle_vertices[offset] =     static_cast<GLfloat>(cos(2 * M_PI * i / fan_count)); // X
         triangle_vertices[offset + 1] = static_cast<GLfloat>(sin(2 * M_PI * i / fan_count)); // Y
         triangle_vertices[offset + 2] = 0.0f;                                                // Z
-        triangle_vertices[offset + 3] = 1.0f;                                                // R
-        triangle_vertices[offset + 4] = 1.0f;                                                // G
-        triangle_vertices[offset + 5] = 1.0f;                                                // B
+        // Arbitrary continuous functions to map i values to [0, 1]
+        triangle_vertices[offset + 3] = static_cast<GLfloat>(sin(0.5f * M_PI * i / fan_count)); // R
+        triangle_vertices[offset + 4] = 0.0f;                                                   // G
+        triangle_vertices[offset + 5] = static_cast<GLfloat>(cos(0.5f * M_PI * i / fan_count)); // B
     }
 
     // Static draw because data is written once and used many times.
@@ -141,6 +142,11 @@ int main() {
     glVertexAttribPointer(position_attribute, 3, GL_FLOAT, GL_FALSE, ATTR_COUNT * sizeof(GLfloat), nullptr);
     glEnableVertexAttribArray(position_attribute);
 
+    GLuint color_attribute = static_cast<GLuint>(glGetAttribLocation(shader_program, "color"));
+    glVertexAttribPointer(color_attribute, 3,
+            GL_FLOAT, GL_FALSE, ATTR_COUNT * sizeof(GLfloat), (void*) (3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(color_attribute);
+
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         // Draw the grid
@@ -163,10 +169,14 @@ GLuint init_shaders() {
         #version 150 core
 
         in vec3 position;
+        in vec3 color;
+        /* flat : the color will be sourced from the provoking vertex. */
+        flat out vec3 Color;
 
         void main() {
             /* Fourth coordinate is related to clipping and should default to 1.0 */
             gl_Position = vec4(position, 1.0);
+            Color = color;
         }
     )glsl";
 
@@ -189,9 +199,11 @@ GLuint init_shaders() {
 
         out vec4 out_color;
 
+        flat in vec3 Color;
+
         void main() {
             /* Just white for now */
-            out_color = vec4(1.0, 1.0, 1.0, 1.0);
+            out_color = vec4(Color, 1.0);
         }
     )glsl";
 
