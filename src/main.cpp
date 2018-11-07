@@ -96,9 +96,9 @@ int main() {
     triangle_vertices[0] = 0.0f; //X
     triangle_vertices[1] = 0.0f; //Y
     triangle_vertices[2] = 0.0f; //Z
-    triangle_vertices[3] = 1.0f; //Z
-    triangle_vertices[4] = 1.0f; //Z
-    triangle_vertices[5] = 1.0f; //Z
+    triangle_vertices[3] = 1.0f; //R
+    triangle_vertices[4] = 1.0f; //G
+    triangle_vertices[5] = 1.0f; //B
 
     for (int i = 0; i < fan_count; i++) {
         // attr count for the fan hub, and attr count for the each consequent vertex
@@ -157,6 +157,23 @@ int main() {
     model_trans = glm::rotate(model_trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     GLint uniform_model = glGetUniformLocation(shader_program, "model");
     glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model_trans));
+
+    // View transformation (camera movement not implemented)
+    glm::mat4 view_trans = glm::lookAt(
+                glm::vec3(1.5f, 1.5f, 1.5f), // Eye coordinates
+                glm::vec3(0.0f, 0.0f, 0.0f), // Point to look at
+                glm::vec3(0.0f, 0.0f, 1.0f)  // Up vector
+    );
+    GLint uniform_view = glGetUniformLocation(shader_program, "view");
+    glUniformMatrix4fv(uniform_view, 1, GL_FALSE, glm::value_ptr(view_trans));
+
+    // Projection transformation
+    // TODO: remove hardcoded values
+    glm::mat4 projection_trans = glm::perspective(
+            glm::radians(60.0f), 800.0f / 600.0f, 1.0f, 10.0f);
+    GLint uniform_projection = glGetUniformLocation(shader_program, "projection");
+    glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection_trans));
+
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         // Draw the grid
@@ -185,10 +202,12 @@ GLuint init_shaders() {
 
         /* transformation matrices */
         uniform mat4 model;
+        uniform mat4 view;
+        uniform mat4 projection;
 
         void main() {
             /* Fourth coordinate is related to clipping and should default to 1.0 */
-            gl_Position = model * vec4(position, 1.0);
+            gl_Position = projection * view * model * vec4(position, 1.0);
             Color = color;
         }
     )glsl";
