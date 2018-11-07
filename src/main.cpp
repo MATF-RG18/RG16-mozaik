@@ -159,8 +159,8 @@ int main() {
     }
 
     glfwTerminate();
-    // TODO: return glError for debugging purposes
-    return 0;
+
+    return glGetError();
 }
 
 GLuint init_shaders() {
@@ -202,7 +202,6 @@ GLuint init_shaders() {
         flat in vec3 Color;
 
         void main() {
-            /* Just white for now */
             out_color = vec4(Color, 1.0);
         }
     )glsl";
