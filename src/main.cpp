@@ -8,6 +8,8 @@
 #include <GLFW/glfw3.h>
 #include <math.h>
 
+#define ATTR_COUNT 3
+
 GLuint init_shaders();
 
 int main() {
@@ -43,12 +45,12 @@ int main() {
     // Create a grid
     // TODO: wrap into a parametrized function
 
-    // 20 lines * 2 vertices each * 3 attributes each
-    float grid_vertices[20 * 2 * 3];
+    // 20 lines * 2 vertices each * attribute count
+    float grid_vertices[20 * 2 * ATTR_COUNT];
 
     for (int i = 0; i < 10; i++) {
-        // stride is 3 * 4 <=> 4 vertices have 12 attributes in total
-        int offset = i * 3 * 4;
+        // 4 vertices * attribute count
+        int offset = i * ATTR_COUNT * 4;
 
         // Start point
         grid_vertices[offset] = -1.0f + i * 0.2f;        // X
@@ -73,7 +75,7 @@ int main() {
 
     // Fan-like triangle organization, that will evolve into a sphere approximation
     const unsigned fan_count = 20; // Fan side count
-    GLfloat triangle_vertices[(fan_count + 1) * 3];
+    GLfloat triangle_vertices[(fan_count + 1) * ATTR_COUNT];
 
     // Fan hub
     triangle_vertices[0] = 0.0f; //X
@@ -81,8 +83,8 @@ int main() {
     triangle_vertices[2] = 0.0f; //Z
 
     for (int i = 0; i < fan_count; i++) {
-        // 3 for the fan hub, and 3 for the each consequent vertex
-        int offset = 3 + i * 3;
+        // attr count for the fan hub, and attr count for the each consequent vertex
+        int offset = ATTR_COUNT + i * ATTR_COUNT;
         triangle_vertices[offset] =     static_cast<GLfloat>(cos(2 * M_PI * i / fan_count)); // X
         triangle_vertices[offset + 1] = static_cast<GLfloat>(sin(2 * M_PI * i / fan_count)); // Y
         triangle_vertices[offset + 2] = 0.0f;                                        // Z
@@ -93,19 +95,19 @@ int main() {
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(grid_vertices), grid_vertices);
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(grid_vertices), sizeof(triangle_vertices), triangle_vertices);
 
-    GLuint triangle_elements[fan_count * 3];
+    GLuint triangle_elements[fan_count * ATTR_COUNT];
 
     for (unsigned i = 0; i < fan_count; i++) {
-        int offset = i * 3;
+        int offset = i * ATTR_COUNT;
         triangle_elements[offset] = 0; // One element is always the hub
         triangle_elements[offset + 1] = i + 1;
         triangle_elements[offset + 2] = i + 2;
     }
 
-    // The last 3 vertices should connect one to another
-    triangle_elements[fan_count * 3 - 3] = 0;
-    triangle_elements[fan_count * 3 - 2] = fan_count;
-    triangle_elements[fan_count * 3 - 1] = 1;
+    // The last vertex should connect to the first vertex
+    triangle_elements[fan_count * ATTR_COUNT - 3] = 0;
+    triangle_elements[fan_count * ATTR_COUNT - 2] = fan_count;
+    triangle_elements[fan_count * ATTR_COUNT - 1] = 1;
 
     GLuint element_buffer;
     glGenBuffers(1, &element_buffer);
@@ -118,7 +120,7 @@ int main() {
 
     // Make a connection between vertex data and attributes
     GLuint position_attribute = static_cast<GLuint>(glGetAttribLocation(shader_program, "position"));
-    glVertexAttribPointer(position_attribute, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glVertexAttribPointer(position_attribute, ATTR_COUNT, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(position_attribute);
 
     // Main loop
