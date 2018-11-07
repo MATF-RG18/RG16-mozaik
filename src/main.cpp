@@ -72,7 +72,7 @@ int main() {
     }
 
     // Fan-like triangle organization, that will evolve into a sphere approximation
-    const unsigned fan_count = 20;
+    const unsigned fan_count = 20; // Fan side count
     GLfloat triangle_vertices[(fan_count + 1) * 3];
 
     // Fan hub
@@ -80,7 +80,7 @@ int main() {
     triangle_vertices[1] = 0.0f; //Y
     triangle_vertices[2] = 0.0f; //Z
 
-    for (int i = 0; i < fan_count + 1; i++) {
+    for (int i = 0; i < fan_count; i++) {
         // 3 for the fan hub, and 3 for the each consequent vertex
         int offset = 3 + i * 3;
         triangle_vertices[offset] =     static_cast<GLfloat>(cos(2 * M_PI * i / fan_count)); // X
