@@ -11,6 +11,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "color_sphere.hpp"
+
 #define ATTR_COUNT 6
 
 GLuint init_shaders();
@@ -87,6 +89,8 @@ int main() {
         grid_vertices[offset + 22] = 1.0f;               // G
         grid_vertices[offset + 23] = 1.0f;               // B
     }
+
+    GLfloat* sphere_vertices = create_sphere(glm::vec3(0.0f), 2.0f, 0);
 
     // Fan-like triangle organization, that will evolve into a sphere approximation
     const unsigned fan_count = 50; // Fan side count
