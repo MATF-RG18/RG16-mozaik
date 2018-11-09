@@ -25,9 +25,9 @@
  * Level of detail - determines the number of vertices per side of the sphere.
  */
 void create_sphere(
-        GLfloat* vertex_array,
+        GLfloat* &vertex_array,
         GLsizeiptr &va_size,
-        GLuint* element_array,
+        GLuint* &element_array,
         GLsizeiptr &ea_size,
         glm::vec3 center,
         GLfloat radius,

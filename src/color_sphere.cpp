@@ -13,12 +13,12 @@
  * @param length
  * The length to which the distance between vertices should be normalized.
  */
-static void normalize(glm::vec3 center, glm::vec3 &orig, GLfloat length);
+static void normalize(glm::vec3 &vector, GLfloat length);
 
 void create_sphere(
-        GLfloat* vertex_array,
+        GLfloat* &vertex_array,
         GLsizeiptr &va_size,
-        GLuint* element_array,
+        GLuint* &element_array,
         GLsizeiptr &ea_size,
         glm::vec3 center,
         GLfloat radius,
@@ -29,22 +29,23 @@ void create_sphere(
     va_size = lod * (lod + 1) / 2;
     vertex_array = new GLfloat[va_size];
 
-    // Testing
-    glm::vec3 vertex_test = glm::vec3(1.0f, 1.0f, 1.0f);
+    // The point from which all other points will be translated
+    glm::vec3 origin = glm::vec3(1.0f, -1.0f, 0.0f);
 
-    normalize(center, vertex_test, radius);
+    glm::vec3 base1 = glm::vec3(0.0f, 1.0f, 0.0f);
+    // Normalize to match length of a single distance between vertices
+    normalize(base1, 1.0f / lod);
 
-    printf("%f %f %f\n", vertex_test.x, vertex_test.y, vertex_test.z);
-
+    glm::vec3 base2 = glm::vec3(-1.0f, -1.0f, 1.0f);
+    // Normalize to match length of a single distance between vertices
+    normalize(base2, 1.0f / lod);
 }
 
-void normalize(glm::vec3 center, glm::vec3 &orig, GLfloat length) {
-    GLfloat distance = sqrtf(
-            powf(orig.x - center.x, 2) +
-            powf(orig.y - center.y, 2) +
-            powf(orig.z - center.z, 2)
+void normalize(glm::vec3 &vector, GLfloat length) {
+    GLfloat orig_length = sqrtf(
+            powf(vector.x, 2) +
+            powf(vector.y, 2) +
+            powf(vector.z, 2)
     );
-    orig.x = orig.x * length / distance;
-    orig.y = orig.y * length / distance;
-    orig.z = orig.z * length / distance;
+    vector.operator*=(length / orig_length);
 }

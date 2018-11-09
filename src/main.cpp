@@ -90,7 +90,10 @@ int main() {
         grid_vertices[offset + 23] = 1.0f;               // B
     }
 
-    GLfloat* sphere_vertices = create_sphere(glm::vec3(0.0f), 2.0f, 0);
+    GLfloat* sphere_vertices;
+    GLuint* sphere_indices;
+    GLsizeiptr sphere_vertices_size, sphere_indices_size;
+    create_sphere(sphere_vertices, sphere_vertices_size, sphere_indices, sphere_indices_size, glm::vec3(0.0f), 2.0f, 3);
 
     // Fan-like triangle organization, that will evolve into a sphere approximation
     const unsigned fan_count = 50; // Fan side count
