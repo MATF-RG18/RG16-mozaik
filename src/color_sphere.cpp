@@ -20,19 +20,7 @@ static void normalize(glm::vec3 &vector, GLfloat length);
 
 static void put_into_array(GLfloat* vertex_array, unsigned offset, glm::vec3 vertex);
 
-void create_sphere(
-        GLfloat* &vertex_array,
-        GLsizei &va_size,
-        GLuint* &element_array,
-        GLsizei &ea_size,
-        glm::vec3 center,
-        GLfloat radius,
-        unsigned lod) {
-
-    // Sum of the first lod numbers
-    // (see https://github.com/MATF-RG18/RG16-mozaik/wiki/Miscellaneous-code-and-geometry-explanations)
-    va_size = lod * (lod + 1) / 2;
-    vertex_array = new GLfloat[va_size * ATTR_COUNT];
+void create_sphere(GLfloat vertex_array[], GLuint element_array[], GLfloat radius, unsigned lod) {
 
     // The point from which all other points will be translated
     glm::vec3 origin = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -50,16 +38,13 @@ void create_sphere(
     put_into_array(vertex_array, 1, origin + base1);
     put_into_array(vertex_array, 2, origin + base2);
     put_into_array(vertex_array, 3, origin + base1 + base1);
-    va_size = 4 * ATTR_COUNT;
 
-    element_array = new GLuint[3];
     element_array[0] = 0;
     element_array[1] = 1;
     element_array[2] = 2;
-    element_array[3] = 0;
-    element_array[4] = 1;
+    element_array[3] = 1;
+    element_array[4] = 2;
     element_array[5] = 3;
-    ea_size = 6;
 }
 
 void normalize(glm::vec3 &vector, GLfloat length) {
@@ -78,8 +63,21 @@ void put_into_array(GLfloat *vertex_array, unsigned offset, glm::vec3 vertex) {
     vertex_array[offset + 1] = vertex.y;
     vertex_array[offset + 2] = vertex.z;
     // TODO: calculate RGB values for each vertex
-    vertex_array[offset + 3] = offset == 3 ? 1.0f : 0.0f;
+    vertex_array[offset + 3] = offset / ATTR_COUNT == 3 ? 1.0f : 0.0f; // Different color for debugging
     vertex_array[offset + 4] = 1.0f;
     vertex_array[offset + 5] = 0.0f;
+}
 
+unsigned sphere_vertex_count_hint(unsigned lod) {
+    // Sum of the first lod numbers
+    // (see https://github.com/MATF-RG18/RG16-mozaik/wiki/Miscellaneous-code-and-geometry-explanations)
+    //  return lod * (lod + 1) / 2;
+    // Test data, for now:
+    return 4;
+
+}
+
+unsigned sphere_index_count_hint(unsigned lod) {
+    //return static_cast<unsigned int>(pow(3, (lod - 1) / 2));
+    return 6; // Test data
 }

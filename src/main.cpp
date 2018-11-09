@@ -90,59 +90,21 @@ int main() {
         grid_vertices[offset + 23] = 1.0f;               // B
     }
 
-    GLfloat* sphere_vertices;
-    GLuint* sphere_indices;
-    GLsizeiptr sphere_vertices_size, sphere_indices_size;
-    create_sphere(sphere_vertices, sphere_vertices_size, sphere_indices, sphere_indices_size, glm::vec3(0.0f), 2.0f, 3);
-
-    // Fan-like triangle organization, that will evolve into a sphere approximation
-    const unsigned fan_count = 50; // Fan side count
-    GLfloat triangle_vertices[(fan_count + 1) * ATTR_COUNT];
-
-    // Fan hub
-    triangle_vertices[0] = 0.0f; //X
-    triangle_vertices[1] = 0.0f; //Y
-    triangle_vertices[2] = 0.0f; //Z
-    triangle_vertices[3] = 1.0f; //R
-    triangle_vertices[4] = 1.0f; //G
-    triangle_vertices[5] = 1.0f; //B
-
-    for (int i = 0; i < fan_count; i++) {
-        // attr count for the fan hub, and attr count for the each consequent vertex
-        int offset = ATTR_COUNT + i * ATTR_COUNT;
-        triangle_vertices[offset] =     static_cast<GLfloat>(cos(2 * M_PI * i / fan_count)); // X
-        triangle_vertices[offset + 1] = static_cast<GLfloat>(sin(2 * M_PI * i / fan_count)); // Y
-        triangle_vertices[offset + 2] = 0.0f;                                                // Z
-        // Arbitrary continuous functions to map i values to [0, 1]
-        triangle_vertices[offset + 3] = static_cast<GLfloat>(sin(0.5f * M_PI * i / fan_count)); // R
-        triangle_vertices[offset + 4] = 0.0f;                                                   // G
-        triangle_vertices[offset + 5] = static_cast<GLfloat>(cos(0.5f * M_PI * i / fan_count)); // B
-    }
+    unsigned lod = 3;
+    GLfloat sphere_vertices[sphere_vertex_count_hint(lod) * ATTR_COUNT];
+    GLuint sphere_indices[sphere_index_count_hint(lod)];
+    create_sphere(sphere_vertices, sphere_indices, 2.0f, lod);
 
     // Static draw because data is written once and used many times.
-    glBufferData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(triangle_vertices), nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(sphere_vertices), nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(grid_vertices), grid_vertices);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(grid_vertices), sizeof(triangle_vertices), triangle_vertices);
-
-    GLuint triangle_elements[fan_count * ATTR_COUNT];
-
-    for (unsigned i = 0; i < fan_count; i++) {
-        int offset = i * ATTR_COUNT;
-        triangle_elements[offset] = 0; // One element is always the hub
-        triangle_elements[offset + 1] = i + 1;
-        triangle_elements[offset + 2] = i + 2;
-    }
-
-    // The last vertex should connect to the first vertex
-    triangle_elements[fan_count * ATTR_COUNT - 3] = 0;
-    triangle_elements[fan_count * ATTR_COUNT - 2] = fan_count;
-    triangle_elements[fan_count * ATTR_COUNT - 1] = 1;
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(grid_vertices), sizeof(sphere_vertices), sphere_vertices);
 
     GLuint element_buffer;
     glGenBuffers(1, &element_buffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-            sizeof(triangle_elements), triangle_elements, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(sphere_indices), nullptr, GL_STATIC_DRAW);
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(sphere_indices), sphere_indices);
 
     // Initialize shaders
     GLuint shader_program = init_shaders();
@@ -161,7 +123,8 @@ int main() {
 
     // Model transformation (just a sample one at the moment)
     glm::mat4 model_trans = glm::mat4(1.0f);
-    model_trans = glm::rotate(model_trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    // The angle will be different when camera movement is implemented
+    model_trans = glm::rotate(model_trans, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     GLint uniform_model = glGetUniformLocation(shader_program, "model");
     glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model_trans));
 
@@ -181,12 +144,17 @@ int main() {
     GLint uniform_projection = glGetUniformLocation(shader_program, "projection");
     glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection_trans));
 
+    glEnable(GL_DEPTH_TEST);
+
     // Main loop
     while (!glfwWindowShouldClose(window)) {
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // Draw the grid
         glDrawArrays(GL_LINES, 0, 40);
-        // Draw the triangles
-        glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(triangle_elements), GL_UNSIGNED_INT, 0, 40);
+        // Draw the sphere octant
+        glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
+                GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
 
         glfwSwapBuffers(window);
         glfwPollEvents();

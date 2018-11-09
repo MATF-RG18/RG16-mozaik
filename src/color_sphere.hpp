@@ -10,26 +10,26 @@
  * triangles, and then normalizing their distance from the center.
  *
  * @param vertex_array
- * The array of resulting vertices, which should be manually deallocated.
- * @param va_size
- * Size of the resulting vertex array.
+ * Initialized vertex array, with size corresponding to lod
  * @param element_array
- * The array of resulting triangle elements, which should be manually deallocated.
- * @param ea_size
- * Size of the resulting element array.
- * @param center
- * Center of the resulting sphere.
+ * Initialized index array, with size corresponding to lod
  * @param radius
- * Radius of the resulting sphere.
+ * Radius of the resulting sphere
+ * @param lod
+ * Level of detail - number of vertices on the edge of each octant.
+ */
+void create_sphere(GLfloat vertex_array[], GLuint element_array[], GLfloat radius, unsigned lod);
+
+/** Calculate the count of vertices needed for specified lod
+ *
  * @param lod
  * Level of detail - determines the number of vertices per side of the sphere.
+ * @return
+ * Vertices needed for specified lod, convenient for array sizes.
  */
-void create_sphere(
-        GLfloat* &vertex_array,
-        GLsizei &va_size,
-        GLuint* &element_array,
-        GLsizei &ea_size,
-        glm::vec3 center,
-        GLfloat radius,
-        unsigned lod);
+unsigned sphere_vertex_count_hint(unsigned lod);
+
+/** See sphere_vertex_count_hint
+ */
+unsigned sphere_index_count_hint(unsigned lod);
 #endif //RG16_MOZAIK_COLOR_SPHERE_HPP
