@@ -2,14 +2,25 @@
 #include <math.h>
 #include <cstdio>
 
+/** Normalize the distance from the center to length
+ *
+ * This function modifies the original vertex in-place.
+ *
+ * @param center
+ * The center from which the distance is measured.
+ * @param orig
+ * The vertex which will be modified in-place.
+ * @param length
+ * The length to which the distance between vertices should be normalized.
+ */
+static void normalize(glm::vec3 center, glm::vec3 &orig, GLfloat length);
 
-GLfloat* create_sphere(glm::vec3 center, GLfloat diameter, unsigned precision_level) {
+GLfloat* create_sphere(glm::vec3 center, GLfloat diameter, unsigned lod) {
 
     // Testing
-    glm::vec3 center_test = glm::vec3(0.0f);
     glm::vec3 vertex_test = glm::vec3(1.0f, 1.0f, 1.0f);
 
-    normalize(center_test, vertex_test, 2.0f);
+    normalize(center, vertex_test, diameter);
 
     printf("%f %f %f\n", vertex_test.x, vertex_test.y, vertex_test.z);
 

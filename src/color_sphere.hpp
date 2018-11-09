@@ -13,25 +13,12 @@
  * Center of the resulting sphere.
  * @param diameter
  * Diameter of the resulting sphere.
- * @param precision_level
- * The degree of subdivision. The number of vertices rises exponentially.
+ * @param lod
+ * Level of detail - determines the number of separate edges per side of the sphere.
  * @return
  * Pointer to the resulting array of sphere vertices, which should be
  * deallocated manually.
  */
-GLfloat* create_sphere(glm::vec3 center, GLfloat diameter, unsigned precision_level);
-
-/** Normalize the distance from the center to length
- *
- * This function modifies the original vertex in-place.
- *
- * @param center
- * The center from which the distance is measured.
- * @param orig
- * The vertex which will be modified in-place.
- * @param length
- * The length to which the distance between vertices should be normalized.
- */
-void normalize(glm::vec3 center, glm::vec3 &orig, GLfloat length);
+GLfloat* create_sphere(glm::vec3 center, GLfloat diameter, unsigned lod);
 
 #endif //RG16_MOZAIK_COLOR_SPHERE_HPP
