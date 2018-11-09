@@ -49,6 +49,7 @@ void create_sphere(GLfloat vertex_array[], GLuint index_array[], GLfloat radius,
     for (int j = 0; j < lod; j++) {
         for (unsigned i = 0; i < lod - j - 1; ++i) {
             put_into_index_array(index_array, i + offset, i + offset + 1, lod - j + i + offset);
+            put_into_index_array(index_array, lod - j + i + offset, lod - j + i + offset + 1, i + offset + 1);
         }
         offset += (5 - j);
     }
@@ -105,5 +106,5 @@ unsigned sphere_vertex_count_hint(unsigned lod) {
 
 unsigned sphere_index_count_hint(unsigned lod) {
     // TODO: visual explanation
-    return (lod * (lod + 1)) / 2 * 3;
+    return static_cast<unsigned int>(pow(lod, 2) * 3);
 }

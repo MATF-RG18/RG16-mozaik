@@ -125,6 +125,8 @@ int main() {
     glm::mat4 model_trans = glm::mat4(1.0f);
     // The angle will be different when camera movement is implemented
     GLint uniform_model = glGetUniformLocation(shader_program, "model");
+    model_trans = glm::rotate(model_trans, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model_trans));
 
     // View transformation (camera movement not implemented)
     glm::mat4 view_trans = glm::lookAt(
