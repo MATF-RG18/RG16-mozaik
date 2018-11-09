@@ -18,9 +18,13 @@
  */
 static void normalize(glm::vec3 &vector, GLfloat length);
 
-static void put_into_array(GLfloat* vertex_array, unsigned offset, glm::vec3 vertex);
+static glm::vec3 multiply(glm::vec3 vector, int factor);
 
-void create_sphere(GLfloat vertex_array[], GLuint element_array[], GLfloat radius, unsigned lod) {
+static void put_into_vertex_array(GLfloat vertex_array[], glm::vec3 vertex);
+
+static void put_into_index_array(GLuint index_array[], GLuint first, GLuint second, GLuint third);
+
+void create_sphere(GLfloat vertex_array[], GLuint index_array[], GLfloat radius, unsigned lod) {
 
     // The point from which all other points will be translated
     glm::vec3 origin = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -33,18 +37,19 @@ void create_sphere(GLfloat vertex_array[], GLuint element_array[], GLfloat radiu
     // Normalize to match length of a single distance between vertices
     normalize(base2, 1.0f / lod);
 
-    // Test data
-    put_into_array(vertex_array, 0, origin);
-    put_into_array(vertex_array, 1, origin + base1);
-    put_into_array(vertex_array, 2, origin + base2);
-    put_into_array(vertex_array, 3, origin + base1 + base1);
+    for (int j = 0; j < lod; j++) {
+        for (int i = 0; i < lod - j; ++i) {
+            put_into_vertex_array(vertex_array, origin + multiply(base1, i) + multiply(base2, j));
+        }
+    }
 
-    element_array[0] = 0;
-    element_array[1] = 1;
-    element_array[2] = 2;
-    element_array[3] = 1;
-    element_array[4] = 2;
-    element_array[5] = 3;
+    int offset = 0;
+    for (int j = 0; j < lod; j++) {
+        for (unsigned i = 0; i < lod - j - 1; ++i) {
+            put_into_index_array(index_array, i + offset, i + offset + 1, lod - j + i + offset);
+        }
+        offset += (5 - j);
+    }
 }
 
 void normalize(glm::vec3 &vector, GLfloat length) {
@@ -56,28 +61,47 @@ void normalize(glm::vec3 &vector, GLfloat length) {
     vector.operator*=(length / orig_length);
 }
 
-void put_into_array(GLfloat *vertex_array, unsigned offset, glm::vec3 vertex) {
-    offset = offset * ATTR_COUNT;
+glm::vec3 multiply(glm::vec3 vector, int factor) {
+    vector.x *= factor;
+    vector.y *= factor;
+    vector.z *= factor;
+
+    return vector;
+}
+
+void put_into_vertex_array(GLfloat vertex_array[], glm::vec3 vertex) {
+    static unsigned offset;
 
     vertex_array[offset] = vertex.x;
     vertex_array[offset + 1] = vertex.y;
     vertex_array[offset + 2] = vertex.z;
     // TODO: calculate RGB values for each vertex
-    vertex_array[offset + 3] = offset / ATTR_COUNT == 3 ? 1.0f : 0.0f; // Different color for debugging
+    vertex_array[offset + 3] = 0.0f;
     vertex_array[offset + 4] = 1.0f;
     vertex_array[offset + 5] = 0.0f;
+
+    offset += ATTR_COUNT;
+}
+
+void put_into_index_array(GLuint index_array[], GLuint first, GLuint second, GLuint third) {
+    static unsigned offset;
+
+    index_array[offset] = first;
+    index_array[offset + 1] = second;
+    index_array[offset + 2] = third;
+
+    offset += 3;
+    printf("off: %i, %i %i %i\n", offset, first, second, third);
 }
 
 unsigned sphere_vertex_count_hint(unsigned lod) {
     // Sum of the first lod numbers
     // (see https://github.com/MATF-RG18/RG16-mozaik/wiki/Miscellaneous-code-and-geometry-explanations)
-    //  return lod * (lod + 1) / 2;
-    // Test data, for now:
-    return 4;
+    return lod * (lod + 1) / 2;
 
 }
 
 unsigned sphere_index_count_hint(unsigned lod) {
-    //return static_cast<unsigned int>(pow(3, (lod - 1) / 2));
-    return 6; // Test data
+    // TODO: visual explanation
+    return (lod * (lod + 1)) / 2 * 3;
 }

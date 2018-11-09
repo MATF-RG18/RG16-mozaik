@@ -11,14 +11,14 @@
  *
  * @param vertex_array
  * Initialized vertex array, with size corresponding to lod
- * @param element_array
+ * @param index_array
  * Initialized index array, with size corresponding to lod
  * @param radius
  * Radius of the resulting sphere
  * @param lod
  * Level of detail - number of vertices on the edge of each octant.
  */
-void create_sphere(GLfloat vertex_array[], GLuint element_array[], GLfloat radius, unsigned lod);
+void create_sphere(GLfloat vertex_array[], GLuint index_array[], GLfloat radius, unsigned lod);
 
 /** Calculate the count of vertices needed for specified lod
  *

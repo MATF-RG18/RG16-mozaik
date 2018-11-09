@@ -90,7 +90,7 @@ int main() {
         grid_vertices[offset + 23] = 1.0f;               // B
     }
 
-    unsigned lod = 3;
+    unsigned lod = 5;
     GLfloat sphere_vertices[sphere_vertex_count_hint(lod) * ATTR_COUNT];
     GLuint sphere_indices[sphere_index_count_hint(lod)];
     create_sphere(sphere_vertices, sphere_indices, 2.0f, lod);
@@ -154,7 +154,7 @@ int main() {
         glDrawArrays(GL_LINES, 0, 40);
         // Draw the sphere octant
         glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
-                GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
+                                 GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
 
         glfwSwapBuffers(window);
         glfwPollEvents();
