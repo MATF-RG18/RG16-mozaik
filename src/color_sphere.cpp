@@ -18,7 +18,7 @@
  */
 static void normalize(glm::vec3 &vector, GLfloat length);
 
-static glm::vec3 multiply(glm::vec3 vector, int factor);
+static glm::vec3 multiply(glm::vec3 vector, GLfloat factor);
 
 static void put_into_vertex_array(GLfloat vertex_array[], glm::vec3 vertex);
 
@@ -31,15 +31,17 @@ void create_sphere(GLfloat vertex_array[], GLuint index_array[], GLfloat radius,
 
     glm::vec3 base1 = glm::vec3(-1.0f, 1.0f, 0.0f);
     // Normalize to match length of a single distance between vertices
-    normalize(base1, 1.0f / lod);
+    normalize(base1, static_cast<GLfloat>(powf(2.0f, 1.0f / 2.0f) / (lod - 1)));
 
     glm::vec3 base2 = glm::vec3(-1.0f, 0.0f, 1.0f);
     // Normalize to match length of a single distance between vertices
-    normalize(base2, 1.0f / lod);
+    normalize(base2, static_cast<GLfloat>(powf(2.0f, 1.0f / 2.0f) / (lod - 1)));
 
     for (int j = 0; j < lod; j++) {
         for (int i = 0; i < lod - j; ++i) {
-            put_into_vertex_array(vertex_array, origin + multiply(base1, i) + multiply(base2, j));
+            glm::vec3 vector = origin + multiply(base1, i) + multiply(base2, j);
+            normalize(vector, radius);
+            put_into_vertex_array(vertex_array, vector);
         }
     }
 
@@ -61,7 +63,7 @@ void normalize(glm::vec3 &vector, GLfloat length) {
     vector.operator*=(length / orig_length);
 }
 
-glm::vec3 multiply(glm::vec3 vector, int factor) {
+glm::vec3 multiply(glm::vec3 vector, GLfloat factor) {
     vector.x *= factor;
     vector.y *= factor;
     vector.z *= factor;

@@ -93,7 +93,7 @@ int main() {
     unsigned lod = 5;
     GLfloat sphere_vertices[sphere_vertex_count_hint(lod) * ATTR_COUNT];
     GLuint sphere_indices[sphere_index_count_hint(lod)];
-    create_sphere(sphere_vertices, sphere_indices, 2.0f, lod);
+    create_sphere(sphere_vertices, sphere_indices, 1.0f, lod);
 
     // Static draw because data is written once and used many times.
     glBufferData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(sphere_vertices), nullptr, GL_STATIC_DRAW);
@@ -153,6 +153,7 @@ int main() {
         // Draw the grid
         glDrawArrays(GL_LINES, 0, 40);
         // Draw the sphere octant
+
         glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
                                  GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
 
