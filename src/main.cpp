@@ -124,9 +124,7 @@ int main() {
     // Model transformation (just a sample one at the moment)
     glm::mat4 model_trans = glm::mat4(1.0f);
     // The angle will be different when camera movement is implemented
-    model_trans = glm::rotate(model_trans, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     GLint uniform_model = glGetUniformLocation(shader_program, "model");
-    glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model_trans));
 
     // View transformation (camera movement not implemented)
     glm::mat4 view_trans = glm::lookAt(
@@ -153,9 +151,19 @@ int main() {
         // Draw the grid
         glDrawArrays(GL_LINES, 0, 40);
         // Draw the sphere octant
-
-        glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
-                                 GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
+        for (int i = 0; i < 4; i++) {
+            model_trans = glm::rotate(model_trans, glm::radians(i * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model_trans));
+            glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
+                                     GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
+        }
+        model_trans = glm::rotate(model_trans, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        for (int i = 0; i < 4; i++) {
+            model_trans = glm::rotate(model_trans, glm::radians(i * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model_trans));
+            glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
+                                     GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
