@@ -26,9 +26,9 @@
  */
 void create_sphere(
         GLfloat* &vertex_array,
-        GLsizeiptr &va_size,
+        GLsizei &va_size,
         GLuint* &element_array,
-        GLsizeiptr &ea_size,
+        GLsizei &ea_size,
         glm::vec3 center,
         GLfloat radius,
         unsigned lod);
