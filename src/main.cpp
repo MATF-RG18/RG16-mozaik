@@ -90,7 +90,7 @@ int main() {
         grid_vertices[offset + 23] = 1.0f;               // B
     }
 
-    unsigned lod = 5;
+    unsigned lod = 17;
     GLfloat sphere_vertices[sphere_vertex_count_hint(lod) * ATTR_COUNT];
     GLuint sphere_indices[sphere_index_count_hint(lod)];
     create_sphere(sphere_vertices, sphere_indices, 1.0f, lod);
