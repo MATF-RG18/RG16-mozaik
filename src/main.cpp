@@ -159,9 +159,13 @@ GLuint init_shaders() {
         uniform mat4 projection;
 
         void main() {
-            /* Fourth coordinate is related to clipping and should default to 1.0 */
-            gl_Position = projection * view * model * vec4(position, 1.0);
-            Color = color;
+            vec4 world_pos = model * vec4(position, 1.0);
+            gl_Position = projection * view * world_pos;
+
+            /* Arbitrary function to control color by angle */
+            vec2 vector_proj = normalize(world_pos.xy);
+            float color_value = (vector_proj.x + 1) / 2;
+            Color = vec3(color_value);
         }
     )glsl";
 
