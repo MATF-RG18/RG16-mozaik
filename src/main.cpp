@@ -12,6 +12,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "color_sphere.hpp"
+#include "grid.hpp"
 
 #define ATTR_COUNT 6
 
@@ -48,48 +49,10 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 
     // Create a grid
-    // TODO: wrap into a parametrized function
+    GLfloat grid_vertices[grid_vertex_count_hint(10)];
+    create_grid(grid_vertices, 10);
 
-    // 20 lines * 2 vertices each * attribute count
-    float grid_vertices[20 * 2 * ATTR_COUNT];
-
-    for (int i = 0; i < 10; i++) {
-        // 4 vertices * attribute count
-        int offset = i * ATTR_COUNT * 4;
-
-        // Start point
-        grid_vertices[offset] = -1.0f + i * 0.2f;        // X
-        grid_vertices[offset + 1] = -1.0f;               // Y
-        grid_vertices[offset + 2] = 0.0f;                // Z
-        grid_vertices[offset + 3] = 1.0f;                // R
-        grid_vertices[offset + 4] = 1.0f;                // G
-        grid_vertices[offset + 5] = 1.0f;                // B
-
-        // End point
-        grid_vertices[offset + 6] = -1.0f + i * 0.2f;    // X
-        grid_vertices[offset + 7] = 1.0f;                // Y
-        grid_vertices[offset + 8] = 0.0f;                // Z
-        grid_vertices[offset + 9] = 1.0f;                // R
-        grid_vertices[offset + 10] = 1.0f;               // G
-        grid_vertices[offset + 11] = 1.0f;               // B
-
-        // Start point
-        grid_vertices[offset + 12] = -1.0f;              // X
-        grid_vertices[offset + 13] = -1.0f + i * 0.2f;   // Y
-        grid_vertices[offset + 14] = 0.0f;               // Z
-        grid_vertices[offset + 15] = 1.0f;               // R
-        grid_vertices[offset + 16] = 1.0f;               // G
-        grid_vertices[offset + 17] = 1.0f;               // B
-
-        // End point
-        grid_vertices[offset + 18] = 1.0f;               // X
-        grid_vertices[offset + 19] = -1.0f + i * 0.2f;   // Y
-        grid_vertices[offset + 20] = 0.0f;               // Z
-        grid_vertices[offset + 21] = 1.0f;               // R
-        grid_vertices[offset + 22] = 1.0f;               // G
-        grid_vertices[offset + 23] = 1.0f;               // B
-    }
-
+    // Create a sphere
     unsigned lod = 17;
     GLfloat sphere_vertices[sphere_vertex_count_hint(lod) * ATTR_COUNT];
     GLuint sphere_indices[sphere_index_count_hint(lod)];
@@ -152,7 +115,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // Draw the grid
         glDrawArrays(GL_LINES, 0, 40);
-        // Draw the sphere octant
+        // Draw the sphere
         for (int i = 0; i < 4; i++) {
             model_trans = glm::rotate(model_trans, glm::radians(i * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
             glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model_trans));
