@@ -18,6 +18,8 @@
 
 GLuint init_shaders();
 
+void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mods);
+
 int main() {
     //Initialize window framework
     glfwInit();
@@ -32,6 +34,8 @@ int main() {
 
     // Windowed mode
     GLFWwindow *window = glfwCreateWindow(800, 600, "Mozaik", nullptr, nullptr);
+    glfwSetKeyCallback(window, key_callback);
+
     // Context must be made current so OpenGL calls can take effect
     glfwMakeContextCurrent(window);
 
@@ -131,7 +135,7 @@ int main() {
         }
 
         glfwSwapBuffers(window);
-        glfwPollEvents();
+        glfwWaitEvents();
     }
 
     glfwTerminate();
@@ -212,4 +216,15 @@ GLuint init_shaders() {
     glUseProgram(shader_program);
 
     return shader_program;
+}
+
+void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mods) {
+    // Testing only
+    if (key == GLFW_KEY_W && action == GLFW_REPEAT) {
+        printf("W");
+        fflush(stdout);
+    }
+    if (key == GLFW_KEY_W && action == GLFW_RELEASE) {
+        printf("\n");
+    }
 }
