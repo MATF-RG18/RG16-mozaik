@@ -1,6 +1,8 @@
 #include "color_sphere.hpp"
 #include <math.h>
 #include <cstdio>
+#include <random>
+#include <functional>
 
 // TODO: define ATTR_COUNT in a single place.
 #define ATTR_COUNT 6
@@ -76,14 +78,17 @@ glm::vec3 multiply(glm::vec3 vector, GLfloat factor) {
 
 void put_into_vertex_array(GLfloat vertex_array[], glm::vec3 vertex) {
     static unsigned offset;
+    static std::default_random_engine generator;
+    static std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+    static auto rand = std::bind(distribution, generator);
 
     vertex_array[offset] = vertex.x;
     vertex_array[offset + 1] = vertex.y;
     vertex_array[offset + 2] = vertex.z;
     // TODO: calculate RGB values for each vertex
-    vertex_array[offset + 3] = 0.0f;
-    vertex_array[offset + 4] = 1.0f;
-    vertex_array[offset + 5] = 0.0f;
+    vertex_array[offset + 3] = rand();
+    vertex_array[offset + 4] = rand();
+    vertex_array[offset + 5] = rand();
 
     offset += ATTR_COUNT;
 }
