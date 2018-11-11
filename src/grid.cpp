@@ -4,7 +4,7 @@
 
 void create_grid(GLfloat vertex_buffer[], unsigned num_of_lines) {
 
-    GLfloat spacing = 2.0f / num_of_lines;
+    GLfloat spacing = 2.0f / (num_of_lines - 1);
 
     for (int i = 0; i < num_of_lines; i++) {
         // 4 vertices * attribute count

@@ -11,12 +11,8 @@
  *
  * @param vertex_buffer
  * Initialized buffer. Use the hint function to determine size.
- * @param spacing
- * Spacing between each line. Currently, the spacing is uniform between sets of parallel lines.
- * @param bottom_left
- * Bottom left vertex, from which the drawing will start.
- * @param top_right
- * Top right vertex, to which the drawing will end.
+ * @param num_of_lines
+ * Number of lines in each direction.
  */
 void create_grid(GLfloat vertex_buffer[], unsigned num_of_lines);
 
