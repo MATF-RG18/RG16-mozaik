@@ -101,7 +101,6 @@ void put_into_index_array(GLuint index_array[], GLuint first, GLuint second, GLu
     index_array[offset + 2] = third;
 
     offset += 3;
-    printf("off: %i, %i %i %i\n", offset, first, second, third);
 }
 
 unsigned sphere_vertex_count_hint(unsigned lod) {

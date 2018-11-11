@@ -57,7 +57,7 @@ int main() {
     create_grid(grid_vertices, 10);
 
     // Create a sphere
-    unsigned lod = 17;
+    unsigned lod = 33;
     GLfloat sphere_vertices[sphere_vertex_count_hint(lod) * ATTR_COUNT];
     GLuint sphere_indices[sphere_index_count_hint(lod)];
     create_sphere(sphere_vertices, sphere_indices, 1.0f, lod);
@@ -158,14 +158,35 @@ GLuint init_shaders() {
         uniform mat4 view;
         uniform mat4 projection;
 
+        vec3 hsv2rgb(vec3 c);
+
         void main() {
             vec4 world_pos = model * vec4(position, 1.0);
             gl_Position = projection * view * world_pos;
 
             /* Arbitrary function to control color by angle */
             vec2 vector_proj = normalize(world_pos.xy);
-            float color_value = (vector_proj.x + 1) / 2;
-            Color = vec3(color_value);
+            float hue = vector_proj.y;
+            hue *= 0.25;
+            if (vector_proj.y >= 0) {
+                if (vector_proj.x >= 0) {
+                    /* First quadrant */
+                    /* Do nothing */
+                } else {
+                    /* Second quadrant */
+                    hue = 0.5 - hue;
+                }
+            } else {
+                if (vector_proj.x < 0) {
+                    /* Third quadrant */
+                    hue = 0.5 - hue;
+                } else {
+                    /* Fourth quadrant */
+                    hue =  1.0 + hue;
+                }
+            }
+            vec3 rgb = hsv2rgb(vec3(hue, 1.0, 1.0));
+            Color = vec3(rgb);
         }
         /* Taken from https://github.com/hughsk/glsl-hsv2rgb/blob/master/index.glsl */
         vec3 hsv2rgb(vec3 c) {
