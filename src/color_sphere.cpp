@@ -7,17 +7,6 @@
 // TODO: define ATTR_COUNT in a single place.
 #define ATTR_COUNT 6
 
-/** Normalize the distance from the center to length
- *
- * This function modifies the original vertex in-place.
- *
- * @param center
- * The center from which the distance is measured.
- * @param orig
- * The vertex which will be modified in-place.
- * @param length
- * The length to which the distance between vertices should be normalized.
- */
 static void normalize(glm::vec3 &vector, GLfloat length);
 
 static glm::vec3 multiply(glm::vec3 vector, GLfloat factor);
@@ -31,13 +20,13 @@ void create_sphere(GLfloat vertex_array[], GLuint index_array[], GLfloat radius,
     // The point from which all other points will be translated
     glm::vec3 origin = glm::vec3(1.0f, 0.0f, 0.0f);
 
+    // Base vectors which will be multiplied and added to the origin vector
     glm::vec3 base1 = glm::vec3(-1.0f, 1.0f, 0.0f);
-    // Normalize to match length of a single distance between vertices
-    normalize(base1, static_cast<GLfloat>(powf(2.0f, 1.0f / 2.0f) / (lod - 1)));
-
     glm::vec3 base2 = glm::vec3(-1.0f, 0.0f, 1.0f);
+
     // Normalize to match length of a single distance between vertices
-    normalize(base2, static_cast<GLfloat>(powf(2.0f, 1.0f / 2.0f) / (lod - 1)));
+    normalize(base1, static_cast<GLfloat>(powf(2.0f, 1.0f / 2) / (lod - 1)));
+    normalize(base2, static_cast<GLfloat>(powf(2.0f, 1.0f / 2) / (lod - 1)));
 
     for (int j = 0; j < lod; j++) {
         for (int i = 0; i < lod - j; ++i) {
@@ -50,8 +39,10 @@ void create_sphere(GLfloat vertex_array[], GLuint index_array[], GLfloat radius,
     int offset = 0;
     for (int j = 0; j < lod; j++) {
         for (unsigned i = 0; i < lod - j - 1; ++i) {
+            // Upward-facing triangles
             put_into_index_array(index_array, i + offset, i + offset + 1, lod - j + i + offset);
             if (i < lod - j - 2) {
+                // Downward-facing triangles
                 put_into_index_array(index_array, lod - j + i + offset, lod - j + i + offset + 1, i + offset + 1);
             }
         }
@@ -72,7 +63,6 @@ glm::vec3 multiply(glm::vec3 vector, GLfloat factor) {
     vector.x *= factor;
     vector.y *= factor;
     vector.z *= factor;
-
     return vector;
 }
 
@@ -85,10 +75,8 @@ void put_into_vertex_array(GLfloat vertex_array[], glm::vec3 vertex) {
     vertex_array[offset] = vertex.x;
     vertex_array[offset + 1] = vertex.y;
     vertex_array[offset + 2] = vertex.z;
-    // TODO: calculate RGB values for each vertex
-    vertex_array[offset + 3] = rand();
-    vertex_array[offset + 4] = rand();
-    vertex_array[offset + 5] = rand();
+    // Colors of the vertices are calculated with the vertex shader (not taking into account color
+    // values of the vertex). Therefore, there's no point in setting the vertex color at this point.
 
     offset += ATTR_COUNT;
 }
