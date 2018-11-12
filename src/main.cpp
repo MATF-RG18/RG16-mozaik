@@ -20,6 +20,7 @@ GLuint init_shaders();
 void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mods);
 
 static glm::vec3 position = glm::vec3(1.5f);
+static glm::vec3 look_direction = glm::vec3(-1.5f);
 static const float speed = 0.1f;
 
 int main() {
@@ -101,7 +102,7 @@ int main() {
 
     glm::mat4 view_trans = glm::lookAt(
                 position,                    // Eye coordinates
-                glm::vec3(0.0f, 0.0f, 0.0f), // Point to look at
+                position + look_direction, // Point to look at
                 glm::vec3(0.0f, 0.0f, 1.0f)  // Up vector
     );
     glUniformMatrix4fv(uniform_view, 1, GL_FALSE, glm::value_ptr(view_trans));
@@ -120,7 +121,7 @@ int main() {
 
         view_trans = glm::lookAt(
                 position,                    // Eye coordinates
-                glm::vec3(0.0f, 0.0f, 0.0f), // Point to look at
+                position + look_direction, // Point to look at
                 glm::vec3(0.0f, 0.0f, 1.0f)  // Up vector
         );
         glUniformMatrix4fv(uniform_view, 1, GL_FALSE, glm::value_ptr(view_trans));
@@ -261,7 +262,8 @@ GLuint init_shaders() {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
 void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mods) {
-    // Testing only
+    // TODO: to avoid initial pause between press and repeat, listen for press
+    // and release events, and move in between.
     if (key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
         position.x -= speed;
     }
