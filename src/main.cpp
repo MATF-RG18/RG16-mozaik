@@ -17,8 +17,10 @@
 #define ATTR_COUNT 6
 
 GLuint init_shaders();
-
 void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mods);
+
+static glm::vec3 position = glm::vec3(1.5f);
+static const float speed = 0.1f;
 
 int main() {
     //Initialize window framework
@@ -95,13 +97,13 @@ int main() {
     model_trans = glm::rotate(model_trans, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model_trans));
 
-    // View transformation (camera movement not implemented)
+    GLint uniform_view = glGetUniformLocation(shader_program, "view");
+
     glm::mat4 view_trans = glm::lookAt(
-                glm::vec3(1.5f, 1.5f, 1.5f), // Eye coordinates
+                position,                    // Eye coordinates
                 glm::vec3(0.0f, 0.0f, 0.0f), // Point to look at
                 glm::vec3(0.0f, 0.0f, 1.0f)  // Up vector
     );
-    GLint uniform_view = glGetUniformLocation(shader_program, "view");
     glUniformMatrix4fv(uniform_view, 1, GL_FALSE, glm::value_ptr(view_trans));
 
     // Projection transformation
@@ -115,6 +117,13 @@ int main() {
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
+
+        view_trans = glm::lookAt(
+                position,                    // Eye coordinates
+                glm::vec3(0.0f, 0.0f, 0.0f), // Point to look at
+                glm::vec3(0.0f, 0.0f, 1.0f)  // Up vector
+        );
+        glUniformMatrix4fv(uniform_view, 1, GL_FALSE, glm::value_ptr(view_trans));
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // Draw the grid
@@ -249,13 +258,21 @@ GLuint init_shaders() {
     return shader_program;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mods) {
     // Testing only
-    if (key == GLFW_KEY_W && action == GLFW_REPEAT) {
-        printf("W");
-        fflush(stdout);
+    if (key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        position.x -= speed;
     }
-    if (key == GLFW_KEY_W && action == GLFW_RELEASE) {
-        printf("\n");
+    if (key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        position.x += speed;
+    }
+    if (key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        position.y -= speed;
+    }
+    if (key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        position.y += speed;
     }
 }
+#pragma clang diagnostic pop
