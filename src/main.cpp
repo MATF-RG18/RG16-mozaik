@@ -19,7 +19,7 @@
 GLuint init_shaders();
 void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mods);
 
-static glm::vec3 position = glm::vec3(1.5f);
+static glm::vec3 position = glm::vec3(2.5f);
 static glm::vec3 look_direction = glm::vec3(-1.5f);
 static const float speed = 0.1f;
 
@@ -58,12 +58,14 @@ int main() {
     // Create a grid
     GLfloat grid_vertices[grid_vertex_count_hint(10)];
     create_grid(grid_vertices, 10);
+    glm::mat4 grid_model_trans = glm::mat4(1.0f);
 
     // Create a sphere
     unsigned lod = 33;
     GLfloat sphere_vertices[sphere_vertex_count_hint(lod) * ATTR_COUNT];
     GLuint sphere_indices[sphere_index_count_hint(lod)];
     create_sphere(sphere_vertices, sphere_indices, 1.0f, lod);
+    glm::mat4 sphere_model_trans = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.0f));
 
     // Static draw because data is written once and used many times.
     glBufferData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(sphere_vertices), nullptr, GL_STATIC_DRAW);
@@ -91,24 +93,14 @@ int main() {
 
     // Matrix transformations
 
-    // Model transformation (just a sample one at the moment)
-    glm::mat4 model_trans = glm::mat4(1.0f);
-    // The angle will be different when camera movement is implemented
+    // Model transformation (will be set in the main loop)
     GLint uniform_model = glGetUniformLocation(shader_program, "model");
-    model_trans = glm::rotate(model_trans, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model_trans));
 
+    // View transformation (will be set in the main loop)
     GLint uniform_view = glGetUniformLocation(shader_program, "view");
 
-    glm::mat4 view_trans = glm::lookAt(
-                position,                    // Eye coordinates
-                position + look_direction, // Point to look at
-                glm::vec3(0.0f, 0.0f, 1.0f)  // Up vector
-    );
-    glUniformMatrix4fv(uniform_view, 1, GL_FALSE, glm::value_ptr(view_trans));
-
     // Projection transformation
-    // TODO: remove hardcoded values
+    // TODO: remove hardcoded window size values
     glm::mat4 projection_trans = glm::perspective(
             glm::radians(60.0f), 800.0f / 600.0f, 1.0f, 10.0f);
     GLint uniform_projection = glGetUniformLocation(shader_program, "projection");
@@ -119,7 +111,8 @@ int main() {
     // Main loop
     while (!glfwWindowShouldClose(window)) {
 
-        view_trans = glm::lookAt(
+
+        glm::mat4 view_trans = glm::lookAt(
                 position,                    // Eye coordinates
                 position + look_direction, // Point to look at
                 glm::vec3(0.0f, 0.0f, 1.0f)  // Up vector
@@ -128,8 +121,10 @@ int main() {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // Draw the grid
+        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(grid_model_trans));
         glDrawArrays(GL_LINES, 0, 40);
         // Draw the sphere
+        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(sphere_model_trans));
         glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
                                  GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
 
