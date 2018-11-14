@@ -17,11 +17,17 @@
 #define ATTR_COUNT 6
 
 GLuint init_shaders();
-void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mods);
+static void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mods);
+static void cursor_pos_callback(GLFWwindow* window, double x_pos, double y_pos);
 
 static glm::vec3 position = glm::vec3(1.5f);
-static glm::vec3 look_direction = glm::vec3(-1.5f);
 static const float speed = 0.1f;
+
+// Look direction
+static glm::vec3 look_direction = glm::vec3(-1.5f);
+static float look_horiz_angle = 0.0f;
+static float look_vert_angle = float(M_PI_2);
+static bool snapped_initially = false;
 
 int main() {
     //Initialize window framework
@@ -38,6 +44,7 @@ int main() {
     // Windowed mode
     GLFWwindow *window = glfwCreateWindow(800, 600, "Mozaik", nullptr, nullptr);
     glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, cursor_pos_callback);
 
     // Context must be made current so OpenGL calls can take effect
     glfwMakeContextCurrent(window);
@@ -276,5 +283,25 @@ void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mo
     if (key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
         position.y += speed;
     }
+}
+
+void cursor_pos_callback(GLFWwindow *window, double x_pos, double y_pos) {
+    if (!snapped_initially) {
+        snapped_initially = true;
+    } else {
+        look_horiz_angle += (800/2 - x_pos) * 0.001;
+        look_vert_angle += (600/2 - y_pos) * 0.001;
+
+        // Parametrization of a sphere by angles and radius (radius = 1)
+        look_direction = glm::vec3(
+                sin(look_vert_angle) * cos(look_horiz_angle),
+                sin(look_vert_angle) * sin(look_horiz_angle),
+                cos(look_vert_angle)
+        );
+    }
+
+    glfwSetCursorPos(window, 800/2, 600/2);
+
+    printf("look direction: %f %f %f\n", look_direction.x, look_direction.y, look_direction.z);
 }
 #pragma clang diagnostic pop
