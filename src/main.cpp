@@ -130,19 +130,8 @@ int main() {
         // Draw the grid
         glDrawArrays(GL_LINES, 0, 40);
         // Draw the sphere
-        for (int i = 0; i < 4; i++) {
-            model_trans = glm::rotate(model_trans, glm::radians(i * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model_trans));
-            glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
-                                     GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
-        }
-        model_trans = glm::rotate(model_trans, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        for (int i = 0; i < 4; i++) {
-            model_trans = glm::rotate(model_trans, glm::radians(i * 90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(model_trans));
-            glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
-                                     GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
-        }
+        glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
+                                 GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
 
         glfwSwapBuffers(window);
         glfwWaitEvents();

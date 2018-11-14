@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <random>
 #include <functional>
+#include <glm/detail/type_mat.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 // TODO: define ATTR_COUNT in a single place.
 #define ATTR_COUNT 6
@@ -10,6 +12,9 @@
 static void normalize(glm::vec3 &vector, GLfloat length);
 
 static glm::vec3 multiply(glm::vec3 vector, GLfloat factor);
+
+/* Hint how many vertices will one octahedron triangle use. */
+static unsigned triangle_vertex_array_size_hint(unsigned lod);
 
 static void put_into_vertex_array(GLfloat vertex_array[], glm::vec3 vertex);
 
@@ -28,25 +33,47 @@ void create_sphere(GLfloat vertex_array[], GLuint index_array[], GLfloat radius,
     normalize(base1, static_cast<GLfloat>(powf(2.0f, 1.0f / 2) / (lod - 1)));
     normalize(base2, static_cast<GLfloat>(powf(2.0f, 1.0f / 2) / (lod - 1)));
 
-    for (int j = 0; j < lod; j++) {
-        for (int i = 0; i < lod - j; ++i) {
-            glm::vec3 vector = origin + multiply(base1, i) + multiply(base2, j);
-            normalize(vector, radius);
-            put_into_vertex_array(vertex_array, vector);
-        }
-    }
+    glm::mat4 rotation_matrix = glm::mat4(1.0f);
+    glm::vec3 z_axis = glm::vec3(0.0f, 0.0f, 1.0f);
+    glm::vec3 x_axis = glm::vec3(1.0f, 0.0f, 0.0f);
 
-    int offset = 0;
-    for (int j = 0; j < lod; j++) {
-        for (unsigned i = 0; i < lod - j - 1; ++i) {
-            // Upward-facing triangles
-            put_into_index_array(index_array, i + offset, i + offset + 1, lod - j + i + offset);
-            if (i < lod - j - 2) {
-                // Downward-facing triangles
-                put_into_index_array(index_array, lod - j + i + offset, lod - j + i + offset + 1, i + offset + 1);
+    unsigned triangle_size = triangle_vertex_array_size_hint(lod);
+
+    for (int hemisphere = 0; hemisphere < 2; hemisphere++) {
+        for (int side = 0; side < 4; side++) {
+            // Vertex buffer entry
+            for (int j = 0; j < lod; j++) {
+                for (int i = 0; i < lod - j; ++i) {
+                    glm::vec3 vector = origin + multiply(base1, i) + multiply(base2, j);
+                    normalize(vector, radius);
+                    glm::vec4 rot_vector = rotation_matrix * glm::vec4(vector, 1.0);
+                    put_into_vertex_array(vertex_array, glm::vec3(rot_vector.x, rot_vector.y, rot_vector.z));
+                }
+            }
+            rotation_matrix = glm::rotate(rotation_matrix, M_PI_2f32, z_axis);
+
+            // Index buffer entry
+            unsigned face_offset = (hemisphere * 4 + side) * triangle_size;
+            unsigned offset = 0;
+            for (int j = 0; j < lod; j++) {
+                for (unsigned i = 0; i < lod - j - 1; ++i) {
+                    // Upward-facing triangles
+                    put_into_index_array(index_array,
+                                         face_offset + offset + i,
+                                         face_offset + offset + i + 1,
+                                         face_offset + offset + lod - j +i);
+                    if (i < lod - j - 2) {
+                        // Downward-facing triangles
+                        put_into_index_array(index_array,
+                                             face_offset + offset + lod - j + i,
+                                             face_offset + offset + lod - j + i + 1,
+                                             face_offset + offset + i + 1);
+                    }
+                }
+                offset += (lod - j);
             }
         }
-        offset += (lod - j);
+        rotation_matrix = glm::rotate(rotation_matrix, M_PIf32, x_axis);
     }
 }
 
@@ -91,14 +118,18 @@ void put_into_index_array(GLuint index_array[], GLuint first, GLuint second, GLu
     offset += 3;
 }
 
-unsigned sphere_vertex_count_hint(unsigned lod) {
+unsigned triangle_vertex_array_size_hint(unsigned lod) {
     // Sum of the first lod numbers
     // (see https://github.com/MATF-RG18/RG16-mozaik/wiki/Miscellaneous-code-and-geometry-explanations)
-    return lod * (lod + 1) / 2;
+    return (lod * (lod + 1) / 2);
+}
 
+unsigned sphere_vertex_count_hint(unsigned lod) {
+    // Number of vertices per one octahedron side * 8 sides of an octahedron
+    return triangle_vertex_array_size_hint(lod) * 8;
 }
 
 unsigned sphere_index_count_hint(unsigned lod) {
     // TODO: visual explanation
-    return static_cast<unsigned int>(pow(lod - 1, 2) * 3);
+    return static_cast<unsigned int>(pow(lod - 1, 2) * 3 * 8);
 }
