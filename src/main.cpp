@@ -157,41 +157,9 @@ GLuint init_shaders() {
         uniform mat4 view;
         uniform mat4 projection;
 
-        vec3 hsv2rgb(vec3 c);
-
         void main() {
-            vec4 world_pos = model * vec4(position, 1.0);
-            gl_Position = projection * view * world_pos;
-
-            /* Arbitrary function to control color by angle */
-            vec2 vector_proj = normalize(world_pos.xy);
-            float hue = vector_proj.y;
-            hue *= 0.25;
-            if (vector_proj.y >= 0) {
-                if (vector_proj.x >= 0) {
-                    /* First quadrant */
-                    /* Do nothing */
-                } else {
-                    /* Second quadrant */
-                    hue = 0.5 - hue;
-                }
-            } else {
-                if (vector_proj.x < 0) {
-                    /* Third quadrant */
-                    hue = 0.5 - hue;
-                } else {
-                    /* Fourth quadrant */
-                    hue =  1.0 + hue;
-                }
-            }
-            vec3 rgb = hsv2rgb(vec3(hue, 1.0, 1.0));
-            Color = vec3(rgb);
-        }
-        /* Taken from https://github.com/hughsk/glsl-hsv2rgb/blob/master/index.glsl */
-        vec3 hsv2rgb(vec3 c) {
-            vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-            vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-            return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+            gl_Position = projection * view * model * vec4(position, 1.0);
+            Color = color;
         }
     )glsl";
 

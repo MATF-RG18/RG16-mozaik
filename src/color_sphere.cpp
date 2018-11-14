@@ -20,6 +20,8 @@ static void put_into_vertex_array(GLfloat vertex_array[], glm::vec3 vertex);
 
 static void put_into_index_array(GLuint index_array[], GLuint first, GLuint second, GLuint third);
 
+glm::vec3 hsv2rgb(float h, float s, float b);
+
 void create_sphere(GLfloat vertex_array[], GLuint index_array[], GLfloat radius, unsigned lod) {
 
     // The point from which all other points will be translated
@@ -95,15 +97,37 @@ glm::vec3 multiply(glm::vec3 vector, GLfloat factor) {
 
 void put_into_vertex_array(GLfloat vertex_array[], glm::vec3 vertex) {
     static unsigned offset;
-    static std::default_random_engine generator;
-    static std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
-    static auto rand = std::bind(distribution, generator);
 
     vertex_array[offset] = vertex.x;
     vertex_array[offset + 1] = vertex.y;
     vertex_array[offset + 2] = vertex.z;
-    // Colors of the vertices are calculated with the vertex shader (not taking into account color
-    // values of the vertex). Therefore, there's no point in setting the vertex color at this point.
+
+    glm::vec2 vector_proj = normalize(glm::vec2(vertex.x, vertex.y));
+    float hue = vector_proj.y;
+    hue *= 0.25f;
+    if (vector_proj.y >= 0) {
+        if (vector_proj.x >= 0) {
+            /* First quadrant */
+            /* Do nothing */
+        } else {
+            /* Second quadrant */
+            hue = 0.5f - hue;
+        }
+    } else {
+        if (vector_proj.x < 0) {
+            /* Third quadrant */
+            hue = 0.5f - hue;
+        } else {
+            /* Fourth quadrant */
+            hue =  1.0f + hue;
+        }
+    }
+
+    glm::vec3 result_color = hsv2rgb(hue, 1.0f, 1.0f);
+
+    vertex_array[offset + 3] = result_color.r;
+    vertex_array[offset + 4] = result_color.g;
+    vertex_array[offset + 5] = result_color.b;
 
     offset += ATTR_COUNT;
 }
@@ -122,6 +146,13 @@ unsigned triangle_vertex_array_size_hint(unsigned lod) {
     // Sum of the first lod numbers
     // (see https://github.com/MATF-RG18/RG16-mozaik/wiki/Miscellaneous-code-and-geometry-explanations)
     return (lod * (lod + 1) / 2);
+}
+
+/* Taken from https://github.com/hughsk/glsl-hsv2rgb/blob/master/index.glsl */
+glm::vec3 hsv2rgb(float h, float s, float b) {
+    glm::vec4 K = glm::vec4(1.0f, 2.0f / 3.0f, 1.0f / 3.0f, 3.0f);
+    glm::vec3 p = glm::abs(glm::fract(glm::vec3(h) + glm::vec3(K.x, K.y, K.z)) * 6.0f - glm::vec3(K.w));// * 6.0 - K.www);
+    return b * glm::mix(glm::vec3(K.x), glm::clamp(p - glm::vec3(K.x), 0.0f, 1.0f), s);
 }
 
 unsigned sphere_vertex_count_hint(unsigned lod) {
