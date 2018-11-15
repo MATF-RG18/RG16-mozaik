@@ -19,15 +19,15 @@
 GLuint init_shaders();
 static void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mods);
 static void cursor_pos_callback(GLFWwindow* window, double x_pos, double y_pos);
+static float clamp(float value, float min, float max);
 
 static glm::vec3 position = glm::vec3(1.5f);
 static const float speed = 0.1f;
 
-// Look direction
+// Look direction (initial values point to center)
 static glm::vec3 look_direction = glm::vec3(-1.5f);
-static float look_horiz_angle = 0.0f;
-static float look_vert_angle = float(M_PI_2);
-static bool snapped_initially = false;
+static float look_h_angle = -M_PI_2f32 * 1.5f;
+static float look_v_angle = M_PI_2f32 * 1.5f;
 
 int main() {
     //Initialize window framework
@@ -43,6 +43,9 @@ int main() {
 
     // Windowed mode
     GLFWwindow *window = glfwCreateWindow(800, 600, "Mozaik", nullptr, nullptr);
+    // Hide the cursor
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, cursor_pos_callback);
 
@@ -286,22 +289,31 @@ void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mo
 }
 
 void cursor_pos_callback(GLFWwindow *window, double x_pos, double y_pos) {
-    if (!snapped_initially) {
-        snapped_initially = true;
-    } else {
-        look_horiz_angle += (800/2 - x_pos) * 0.001;
-        look_vert_angle += (600/2 - y_pos) * 0.001;
 
-        // Parametrization of a sphere by angles and radius (radius = 1)
-        look_direction = glm::vec3(
-                sin(look_vert_angle) * cos(look_horiz_angle),
-                sin(look_vert_angle) * sin(look_horiz_angle),
-                cos(look_vert_angle)
-        );
-    }
+    look_h_angle += (800 / 2 - x_pos) * 0.001f;
+    look_v_angle -= (600 / 2 - y_pos) * 0.001f;
+
+    // Clamping
+    look_h_angle = clamp(look_h_angle, -M_PIf32, -M_PI_2f32);
+    // Add a small amount to prevent bugs when sine is equal zero.
+    look_v_angle = clamp(look_v_angle, M_PI_2f32, M_PIf32 - 0.00001f);
+
+    // Parametrization of a sphere by angles and radius (radius = 1)
+    look_direction = glm::vec3(
+            sin(look_v_angle) * cos(look_h_angle),
+            sin(look_v_angle) * sin(look_h_angle),
+            cos(look_v_angle)
+    );
 
     glfwSetCursorPos(window, 800/2, 600/2);
-
-    printf("look direction: %f %f %f\n", look_direction.x, look_direction.y, look_direction.z);
 }
 #pragma clang diagnostic pop
+
+static float clamp(float value, float min, float max) {
+    if (value < min) {
+        value = min;
+    } else if (value > max) {
+        value = max;
+    }
+    return value;
+}
