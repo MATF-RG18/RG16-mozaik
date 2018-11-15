@@ -17,12 +17,13 @@
 #define ATTR_COUNT 6
 
 GLuint init_shaders();
-static void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mods);
+static void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, int mods);
 static void cursor_pos_callback(GLFWwindow* window, double x_pos, double y_pos);
 static float clamp(float value, float min, float max);
 
 static glm::vec3 position = glm::vec3(1.5f);
 static const float speed = 0.1f;
+static glm::vec3 movement_vector = glm::vec3(0.0f);
 
 // Look direction (initial values point to center)
 static glm::vec3 look_direction = glm::vec3(-1.5f);
@@ -46,7 +47,7 @@ int main() {
     // Hide the cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
-    glfwSetKeyCallback(window, key_callback);
+    glfwSetKeyCallback(window, keyboard_callback);
     glfwSetCursorPosCallback(window, cursor_pos_callback);
 
     // Context must be made current so OpenGL calls can take effect
@@ -223,21 +224,34 @@ GLuint init_shaders() {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
-void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mods) {
-    // TODO: to avoid initial pause between press and repeat, listen for press
-    // and release events, and move in between.
-    if (key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        position.x -= speed;
+void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, int mods) {
+    if (key == GLFW_KEY_W) {
+        if (action == GLFW_PRESS) {
+            movement_vector.x--;
+        } else if (action == GLFW_RELEASE) {
+            movement_vector.x++;
+        }
+    } else if (key == GLFW_KEY_S) {
+        if (action == GLFW_PRESS) {
+            movement_vector.x++;
+        } else if (action == GLFW_RELEASE) {
+            movement_vector.x--;
+        }
+    } else if (key == GLFW_KEY_A) {
+        if (action == GLFW_PRESS) {
+            movement_vector.y--;
+        } else if (action == GLFW_RELEASE) {
+            movement_vector.y++;
+        }
+    } else if (key == GLFW_KEY_D) {
+        if (action == GLFW_PRESS) {
+            movement_vector.y++;
+        } else if (action == GLFW_RELEASE) {
+            movement_vector.y--;
+        }
     }
-    if (key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        position.x += speed;
-    }
-    if (key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        position.y -= speed;
-    }
-    if (key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        position.y += speed;
-    }
+    // TODO: Move to the main loop
+    position += movement_vector * speed;
 }
 
 void cursor_pos_callback(GLFWwindow *window, double x_pos, double y_pos) {
