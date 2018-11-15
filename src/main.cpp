@@ -17,11 +17,17 @@
 #define ATTR_COUNT 6
 
 GLuint init_shaders();
-void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mods);
+static void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mods);
+static void cursor_pos_callback(GLFWwindow* window, double x_pos, double y_pos);
+static float clamp(float value, float min, float max);
 
-static glm::vec3 position = glm::vec3(2.5f);
-static glm::vec3 look_direction = glm::vec3(-1.5f);
+static glm::vec3 position = glm::vec3(1.5f);
 static const float speed = 0.1f;
+
+// Look direction (initial values point to center)
+static glm::vec3 look_direction = glm::vec3(-1.5f);
+static float look_h_angle = -M_PI_2f32 * 1.5f;
+static float look_v_angle = M_PI_2f32 * 1.5f;
 
 int main() {
     //Initialize window framework
@@ -37,7 +43,11 @@ int main() {
 
     // Windowed mode
     GLFWwindow *window = glfwCreateWindow(800, 600, "Mozaik", nullptr, nullptr);
+    // Hide the cursor
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
     glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, cursor_pos_callback);
 
     // Context must be made current so OpenGL calls can take effect
     glfwMakeContextCurrent(window);
@@ -229,4 +239,33 @@ void key_callback(GLFWwindow* window, int key, int scan_code, int action, int mo
         position.y += speed;
     }
 }
+
+void cursor_pos_callback(GLFWwindow *window, double x_pos, double y_pos) {
+
+    look_h_angle += (800 / 2 - x_pos) * 0.001f;
+    look_v_angle -= (600 / 2 - y_pos) * 0.001f;
+
+    // Clamping
+    look_h_angle = clamp(look_h_angle, -M_PIf32, -M_PI_2f32);
+    // Add a small amount to prevent bugs when sine is equal zero.
+    look_v_angle = clamp(look_v_angle, M_PI_2f32, M_PIf32 - 0.00001f);
+
+    // Parametrization of a sphere by angles and radius (radius = 1)
+    look_direction = glm::vec3(
+            sin(look_v_angle) * cos(look_h_angle),
+            sin(look_v_angle) * sin(look_h_angle),
+            cos(look_v_angle)
+    );
+
+    glfwSetCursorPos(window, 800/2, 600/2);
+}
 #pragma clang diagnostic pop
+
+static float clamp(float value, float min, float max) {
+    if (value < min) {
+        value = min;
+    } else if (value > max) {
+        value = max;
+    }
+    return value;
+}
