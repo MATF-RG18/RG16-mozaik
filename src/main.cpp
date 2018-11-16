@@ -30,8 +30,10 @@ static int window_height = 600;
 
 // Movement
 static glm::vec3 position = glm::vec3(1.5f);
-static const float speed = 0.1f;
+// Both vectors are needed because one is used to calculate the direction, and the other one is used to
+// move by a normalized amount.
 static glm::vec3 movement_vector = glm::vec3(0.0f);
+static glm::vec3 normalized_movement_vector = glm::vec3(0.0f);
 
 // Look direction (initial values point to center)
 static glm::vec3 look_direction = glm::vec3(-1.5f);
@@ -125,9 +127,15 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
+    double old_time = glfwGetTime();
     // Main loop
     while (!glfwWindowShouldClose(window)) {
 
+        double current_time = glfwGetTime();
+        float delta_time = static_cast<float>(current_time - old_time);
+        old_time = current_time;
+
+        position += normalized_movement_vector * delta_time;
 
         glm::mat4 view_trans = glm::lookAt(
                 position,                    // Eye coordinates
@@ -146,7 +154,7 @@ int main() {
                                  GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
 
         glfwSwapBuffers(window);
-        glfwWaitEvents();
+        glfwPollEvents();
     }
 
     glfwTerminate();
@@ -256,8 +264,14 @@ void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, i
             movement_vector.y--;
         }
     }
-    // TODO: Move to the main loop
-    position += movement_vector * speed;
+
+    // Only normalize if vector is different from zero-intensity vector, because it doesn't have a direction.
+    if (movement_vector.x != 0 || movement_vector.y != 0) {
+        normalized_movement_vector = glm::normalize(movement_vector);
+    } else {
+        normalized_movement_vector.x = 0.0f;
+        normalized_movement_vector.y = 0.0f;
+    }
 }
 
 void cursor_pos_callback(GLFWwindow *window, double x_pos, double y_pos) {
