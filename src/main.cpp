@@ -136,7 +136,16 @@ int main() {
         float delta_time = static_cast<float>(current_time - old_time);
         old_time = current_time;
 
-        position += normalized_movement_vector * delta_time;
+        // Rotate movement vector to match look direction
+
+        glm::vec3 ref_look_direction = look_direction;
+        ref_look_direction.z = 0; // XY projection
+        ref_look_direction = glm::normalize(ref_look_direction);
+        float angle = determine_angle(ref_look_direction) + M_PIf32;
+
+        glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::vec3 rotated_vector = rotation_matrix * glm::vec4(normalized_movement_vector, 1.0f);
+        position += rotated_vector * delta_time;
 
         glm::mat4 view_trans = glm::lookAt(
                 position,                    // Eye coordinates
