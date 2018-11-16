@@ -6,8 +6,7 @@
 #include <glm/detail/type_mat.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// TODO: define ATTR_COUNT in a single place.
-#define ATTR_COUNT 6
+#include "mozaik_globals.hpp"
 
 static void normalize(glm::vec3 &vector, GLfloat length);
 

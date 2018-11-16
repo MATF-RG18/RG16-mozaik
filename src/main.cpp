@@ -13,8 +13,7 @@
 
 #include "color_sphere.hpp"
 #include "grid.hpp"
-
-#define ATTR_COUNT 6
+#include "mozaik_globals.hpp"
 
 GLuint init_shaders();
 static void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, int mods);

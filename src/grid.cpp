@@ -1,6 +1,6 @@
 #include "grid.hpp"
 
-#define ATTR_COUNT 6
+#include "mozaik_globals.hpp"
 
 void create_grid(GLfloat vertex_buffer[], unsigned num_of_lines) {
 
