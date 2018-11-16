@@ -34,6 +34,7 @@ static glm::vec3 position = glm::vec3(1.5f);
 // move by a normalized amount.
 static glm::vec3 movement_vector = glm::vec3(0.0f);
 static glm::vec3 normalized_movement_vector = glm::vec3(0.0f);
+static float movement_speed = 1.0f;
 
 // Look direction (initial values point to center)
 static glm::vec3 look_direction = glm::vec3(-1.5f);
@@ -145,7 +146,8 @@ int main() {
 
         glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 0.0f, 1.0f));
         glm::vec3 rotated_vector = rotation_matrix * glm::vec4(normalized_movement_vector, 1.0f);
-        position += rotated_vector * delta_time;
+
+        position += rotated_vector * delta_time * movement_speed;
 
         glm::mat4 view_trans = glm::lookAt(
                 position,                    // Eye coordinates
@@ -249,6 +251,8 @@ GLuint init_shaders() {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter" // Ignore unused parameters for all callbacks.
 void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, int mods) {
+
+    movement_speed = mods & GLFW_MOD_SHIFT ? 3.0f : 1.0f;
     if (key == GLFW_KEY_W) {
         if (action == GLFW_PRESS) {
             movement_vector.x--;
