@@ -18,8 +18,17 @@
 GLuint init_shaders();
 static void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, int mods);
 static void cursor_pos_callback(GLFWwindow* window, double x_pos, double y_pos);
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
 static float clamp(float value, float min, float max);
 
+// Shader program made public, so it could be accessed by callbacks.
+static GLuint shader_program;
+
+static int window_width = 800;
+static int window_height = 600;
+
+// Movement
 static glm::vec3 position = glm::vec3(1.5f);
 static const float speed = 0.1f;
 static glm::vec3 movement_vector = glm::vec3(0.0f);
@@ -38,16 +47,15 @@ int main() {
     // Using core-profile
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    // Resizing not implemented yet
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     // Windowed mode
-    GLFWwindow *window = glfwCreateWindow(800, 600, "Mozaik", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(window_width, window_height, "Mozaik", nullptr, nullptr);
     // Hide the cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     glfwSetKeyCallback(window, keyboard_callback);
     glfwSetCursorPosCallback(window, cursor_pos_callback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // Context must be made current so OpenGL calls can take effect
     glfwMakeContextCurrent(window);
@@ -109,10 +117,9 @@ int main() {
     // View transformation (will be set in the main loop)
     GLint uniform_view = glGetUniformLocation(shader_program, "view");
 
-    // Projection transformation
-    // TODO: remove hardcoded window size values
+    // Projection transformation (also updated in framebuffer size callback)
     glm::mat4 projection_trans = glm::perspective(
-            glm::radians(60.0f), 800.0f / 600.0f, 1.0f, 10.0f);
+            glm::radians(45.0f), (float) window_width / window_height, 1.0f, 10.0f);
     GLint uniform_projection = glGetUniformLocation(shader_program, "projection");
     glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection_trans));
 
@@ -206,7 +213,7 @@ GLuint init_shaders() {
         printf("Fragment buffer compilation failed:\n%s", buffer);
     }
 
-    GLuint shader_program = glCreateProgram();
+    shader_program = glCreateProgram();
     glAttachShader(shader_program, vertex_shader);
     glAttachShader(shader_program, fragment_shader);
 
@@ -222,7 +229,7 @@ GLuint init_shaders() {
 }
 
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-parameter" // Ignore unused parameters for all callbacks.
 void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, int mods) {
     if (key == GLFW_KEY_W) {
         if (action == GLFW_PRESS) {
@@ -255,8 +262,8 @@ void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, i
 
 void cursor_pos_callback(GLFWwindow *window, double x_pos, double y_pos) {
 
-    look_h_angle += (800 / 2 - x_pos) * 0.001f;
-    look_v_angle -= (600 / 2 - y_pos) * 0.001f;
+    look_h_angle += (window_width / 2 - x_pos) * 0.001f;
+    look_v_angle -= (window_height / 2 - y_pos) * 0.001f;
 
     // Clamping
     look_h_angle = clamp(look_h_angle, -M_PIf32, -M_PI_2f32);
@@ -270,7 +277,21 @@ void cursor_pos_callback(GLFWwindow *window, double x_pos, double y_pos) {
             cos(look_v_angle)
     );
 
-    glfwSetCursorPos(window, 800/2, 600/2);
+    glfwSetCursorPos(window, window_width/2, window_height/2);
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+
+    window_width = width;
+    window_height = height;
+
+    // Adjust for the change in window ratio
+    glm::mat4 projection_trans = glm::perspective(
+            glm::radians(45.0f), (float) width / height, 1.0f, 10.0f);
+    GLint uniform_projection = glGetUniformLocation(shader_program, "projection");
+    glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection_trans));
+
+    glViewport(0, 0, width, height);
 }
 #pragma clang diagnostic pop
 
