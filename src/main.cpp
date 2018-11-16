@@ -76,8 +76,9 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 
     // Create a grid
-    GLfloat grid_vertices[grid_vertex_count_hint(10)];
-    create_grid(grid_vertices, 10);
+    unsigned num_of_lines = 100;
+    GLfloat grid_vertices[grid_vertex_count_hint(num_of_lines)];
+    create_grid(grid_vertices, num_of_lines, glm::vec2(-10.0f), glm::vec2(10.0f));
     glm::mat4 grid_model_trans = glm::mat4(1.0f);
 
     // Create a sphere
@@ -121,7 +122,7 @@ int main() {
 
     // Projection transformation (also updated in framebuffer size callback)
     glm::mat4 projection_trans = glm::perspective(
-            glm::radians(45.0f), (float) window_width / window_height, 1.0f, 10.0f);
+            glm::radians(45.0f), (float) window_width / window_height, 1.0f, 50.0f);
     GLint uniform_projection = glGetUniformLocation(shader_program, "projection");
     glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection_trans));
 
@@ -147,7 +148,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // Draw the grid
         glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(grid_model_trans));
-        glDrawArrays(GL_LINES, 0, 40);
+        glDrawArrays(GL_LINES, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
         // Draw the sphere
         glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(sphere_model_trans));
         glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
@@ -279,9 +280,7 @@ void cursor_pos_callback(GLFWwindow *window, double x_pos, double y_pos) {
     look_h_angle += (window_width / 2 - x_pos) * 0.001f;
     look_v_angle -= (window_height / 2 - y_pos) * 0.001f;
 
-    // Clamping
-    look_h_angle = clamp(look_h_angle, -M_PIf32, -M_PI_2f32);
-    // Add a small amount to prevent bugs when sine is equal zero.
+    // Clamping, adding a small amount to prevent bugs when sine is equal zero.
     look_v_angle = clamp(look_v_angle, M_PI_2f32, M_PIf32 - 0.00001f);
 
     // Parametrization of a sphere by angles and radius (radius = 1)
@@ -301,7 +300,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 
     // Adjust for the change in window ratio
     glm::mat4 projection_trans = glm::perspective(
-            glm::radians(45.0f), (float) width / height, 1.0f, 10.0f);
+            glm::radians(45.0f), (float) width / height, 1.0f, 50.0f);
     GLint uniform_projection = glGetUniformLocation(shader_program, "projection");
     glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection_trans));
 
