@@ -18,7 +18,8 @@
 GLuint init_shaders();
 static void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, int mods);
 static void cursor_pos_callback(GLFWwindow* window, double x_pos, double y_pos);
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 static float clamp(float value, float min, float max);
 
@@ -58,6 +59,7 @@ int main() {
 
     glfwSetKeyCallback(window, keyboard_callback);
     glfwSetCursorPosCallback(window, cursor_pos_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // Context must be made current so OpenGL calls can take effect
@@ -317,6 +319,15 @@ void cursor_pos_callback(GLFWwindow *window, double x_pos, double y_pos) {
     );
 
     glfwSetCursorPos(window, window_width/2, window_height/2);
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        // Test: print the color of a pixel in the middle of the screen;
+        GLfloat rgb[3];
+        glReadPixels(window_width / 2, window_height / 2, 1, 1, GL_RGB, GL_FLOAT, rgb);
+        printf("%f %f %f\n", rgb[0], rgb[1], rgb[2]);
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
