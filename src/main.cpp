@@ -87,7 +87,7 @@ int main() {
     GLfloat sphere_vertices[sphere_vertex_count_hint(lod) * ATTR_COUNT];
     GLuint sphere_indices[sphere_index_count_hint(lod)];
     create_sphere(sphere_vertices, sphere_indices, 1.0f, lod);
-    glm::mat4 sphere_model_trans = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.0f));
+    glm::mat4 sphere_model_trans = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.5f));
 
     // Static draw because data is written once and used many times.
     glBufferData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(sphere_vertices), nullptr, GL_STATIC_DRAW);
@@ -129,6 +129,9 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
+    GLint uniform_color_multiplier = glGetUniformLocation(shader_program, "color_multiplier");
+    glUniform1f(uniform_color_multiplier, 1.0f);
+
     double old_time = glfwGetTime();
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -164,6 +167,14 @@ int main() {
         glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(sphere_model_trans));
         glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
                                  GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
+        // Draw the sphere reflection
+        glUniform1f(uniform_color_multiplier, 0.1f);
+        glm::mat4 reflection_trans = glm::mat4(1.0f);
+        reflection_trans[2][2] = -1.0f;
+        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(reflection_trans * sphere_model_trans));
+        glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
+                                 GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
+        glUniform1f(uniform_color_multiplier, 1.0f);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -189,9 +200,11 @@ GLuint init_shaders() {
         uniform mat4 view;
         uniform mat4 projection;
 
+        uniform float color_multiplier;
+
         void main() {
             gl_Position = projection * view * model * vec4(position, 1.0);
-            Color = color;
+            Color = color * color_multiplier;
         }
     )glsl";
 

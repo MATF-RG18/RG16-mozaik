@@ -16,33 +16,33 @@ void create_grid(GLfloat vertex_buffer[], unsigned num_of_lines, glm::vec2 botto
         vertex_buffer[offset] = bottom_left.x + i * x_spacing;     // X
         vertex_buffer[offset + 1] = bottom_left.y;               // Y
         vertex_buffer[offset + 2] = 0.0f;                // Z
-        vertex_buffer[offset + 3] = 1.0f;                // R
-        vertex_buffer[offset + 4] = 1.0f;                // G
-        vertex_buffer[offset + 5] = 1.0f;                // B
+        vertex_buffer[offset + 3] = 0.7f;                // R
+        vertex_buffer[offset + 4] = 0.7f;                // G
+        vertex_buffer[offset + 5] = 0.7f;                // B
 
         // End point
         vertex_buffer[offset + 6] = bottom_left.x + i * x_spacing; // X
         vertex_buffer[offset + 7] = top_right.y;                // Y
         vertex_buffer[offset + 8] = 0.0f;                // Z
-        vertex_buffer[offset + 9] = 1.0f;                // R
-        vertex_buffer[offset + 10] = 1.0f;               // G
-        vertex_buffer[offset + 11] = 1.0f;               // B
+        vertex_buffer[offset + 9] = 0.7f;                // R
+        vertex_buffer[offset + 10] = 0.7f;               // G
+        vertex_buffer[offset + 11] = 0.7f;               // B
 
         // Start point
         vertex_buffer[offset + 12] = bottom_left.x;              // X
         vertex_buffer[offset + 13] = bottom_left.y + i * y_spacing;// Y
         vertex_buffer[offset + 14] = 0.0f;               // Z
-        vertex_buffer[offset + 15] = 1.0f;               // R
-        vertex_buffer[offset + 16] = 1.0f;               // G
-        vertex_buffer[offset + 17] = 1.0f;               // B
+        vertex_buffer[offset + 15] = 0.7f;               // R
+        vertex_buffer[offset + 16] = 0.7f;               // G
+        vertex_buffer[offset + 17] = 0.7f;               // B
 
         // End point
         vertex_buffer[offset + 18] = top_right.x;               // X
         vertex_buffer[offset + 19] = bottom_left.y + i * y_spacing;// Y
         vertex_buffer[offset + 20] = 0.0f;               // Z
-        vertex_buffer[offset + 21] = 1.0f;               // R
-        vertex_buffer[offset + 22] = 1.0f;               // G
-        vertex_buffer[offset + 23] = 1.0f;               // B
+        vertex_buffer[offset + 21] = 0.7f;               // R
+        vertex_buffer[offset + 22] = 0.7f;               // G
+        vertex_buffer[offset + 23] = 0.7f;               // B
     }
 }
 
