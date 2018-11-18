@@ -6,6 +6,10 @@ U ovom projektu, korisnik crta izlomljene linije po ravni, i kada od tih izlomlj
 ## Prikaz (razvoj je u toku)
 ![Screenshot](https://github.com/MATF-RG18/RG16-mozaik/blob/master/screenshots/screenshot.png)
 
+## Kontrola
+* `W`, `A`, `S`, `D` za kretanje kroz prostor.
+* Kretanje pokazivačem za rotaciju kamere.
+
 ## Build
 
 ```
