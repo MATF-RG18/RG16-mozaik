@@ -2,12 +2,14 @@
   <dictionary name="aleksandar">
     <words>
       <w>bijective</w>
+      <w>crosshair</w>
       <w>deallocated</w>
       <w>fract</w>
       <w>framebuffer</w>
       <w>glew</w>
       <w>mozaik</w>
       <w>octants</w>
+      <w>ortho</w>
       <w>proj</w>
       <w>shaders</w>
     </words>

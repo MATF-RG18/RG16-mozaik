@@ -23,8 +23,10 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 static float clamp(float value, float min, float max);
 
-// Shader program made public, so it could be accessed by callbacks.
+// Shader program made global, so it could be accessed by callbacks.
 static GLuint shader_program;
+static glm::mat4 projection_trans;
+
 
 static int window_width = 800;
 static int window_height = 600;
@@ -41,6 +43,8 @@ static float movement_speed = 1.0f;
 static glm::vec3 look_direction = glm::vec3(-1.5f);
 static float look_h_angle = -M_PI_2f32 * 1.5f;
 static float look_v_angle = M_PI_2f32 * 1.5f;
+
+static glm::vec3 selected_color;
 
 int main() {
     //Initialize window framework
@@ -91,10 +95,19 @@ int main() {
     create_sphere(sphere_vertices, sphere_indices, 1.0f, lod);
     glm::mat4 sphere_model_trans = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.5f));
 
+    // Create a crosshair
+    GLfloat crosshair_vertices[] = {
+        0.0f, -0.02f, 0.0f, 1.0f, 1.0f, 1.0f,
+        0.0f, 0.02f, 0.0f, 1.0f, 1.0f, 1.0f,
+        -0.02f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+        0.02f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+    };
+
     // Static draw because data is written once and used many times.
-    glBufferData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(sphere_vertices), nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(sphere_vertices) + sizeof(crosshair_vertices), nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(grid_vertices), grid_vertices);
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(grid_vertices), sizeof(sphere_vertices), sphere_vertices);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(sphere_vertices), sizeof(crosshair_vertices), crosshair_vertices);
 
     GLuint element_buffer;
     glGenBuffers(1, &element_buffer);
@@ -124,7 +137,7 @@ int main() {
     GLint uniform_view = glGetUniformLocation(shader_program, "view");
 
     // Projection transformation (also updated in framebuffer size callback)
-    glm::mat4 projection_trans = glm::perspective(
+    projection_trans = glm::perspective(
             glm::radians(45.0f), (float) window_width / window_height, 1.0f, 50.0f);
     GLint uniform_projection = glGetUniformLocation(shader_program, "projection");
     glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection_trans));
@@ -177,6 +190,24 @@ int main() {
         glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
                                  GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
         glUniform1f(uniform_color_multiplier, 1.0f);
+
+        // Draw HUD
+        // Model and View transformations are disabled, and projection transformation is set to orthogonal
+        // because HUD is drawn in the screen space directly.
+        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+        glUniformMatrix4fv(uniform_view, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+        GLfloat screen_ratio = (float) window_height / window_width;
+        glm::mat4 ortho = glm::ortho(
+                -1.0f, 1.0f, // Left, right
+                -screen_ratio, screen_ratio, // Top, bottom
+                -1.0f, 1.0f); // Near, far
+        glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(ortho));
+        // Depth test is temporarily disabled to avoid clipping with objects on the scene.
+        glDisable(GL_DEPTH_TEST);
+        //Draw the crosshair
+        glDrawArrays(GL_LINES, (sizeof(grid_vertices) + sizeof(sphere_vertices)) / (ATTR_COUNT * sizeof(GLfloat)), 4);
+        glEnable(GL_DEPTH_TEST);
+        glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection_trans));
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -323,10 +354,7 @@ void cursor_pos_callback(GLFWwindow *window, double x_pos, double y_pos) {
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        // Test: print the color of a pixel in the middle of the screen;
-        GLfloat rgb[3];
-        glReadPixels(window_width / 2, window_height / 2, 1, 1, GL_RGB, GL_FLOAT, rgb);
-        printf("%f %f %f\n", rgb[0], rgb[1], rgb[2]);
+        glReadPixels(window_width / 2, window_height / 2, 1, 1, GL_RGB, GL_FLOAT, &selected_color);
     }
 }
 
@@ -336,7 +364,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     window_height = height;
 
     // Adjust for the change in window ratio
-    glm::mat4 projection_trans = glm::perspective(
+    projection_trans = glm::perspective(
             glm::radians(45.0f), (float) width / height, 1.0f, 50.0f);
     GLint uniform_projection = glGetUniformLocation(shader_program, "projection");
     glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection_trans));
