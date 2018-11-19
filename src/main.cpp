@@ -10,10 +10,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/ext.hpp>
 
 #include "color_sphere.hpp"
 #include "grid.hpp"
 #include "mozaik_globals.hpp"
+#include "geometry.hpp"
 
 GLuint init_shaders();
 static void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, int mods);
@@ -355,6 +357,12 @@ void cursor_pos_callback(GLFWwindow *window, double x_pos, double y_pos) {
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         glReadPixels(window_width / 2, window_height / 2, 1, 1, GL_RGB, GL_FLOAT, &selected_color);
+    }
+
+    // Right button for vertex selection is only for testing, it may change in the future.
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        glm::vec3 intersection = xy_plane_intersection(position, look_direction);
+        printf("%f %f %f\n", intersection.x, intersection.y, intersection.z);
     }
 }
 
