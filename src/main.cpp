@@ -16,6 +16,7 @@
 #include "grid.hpp"
 #include "mozaik_globals.hpp"
 #include "geometry.hpp"
+#include "line_drawer.hpp"
 
 GLuint init_shaders();
 static void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, int mods);
@@ -28,7 +29,6 @@ static float clamp(float value, float min, float max);
 // Shader program made global, so it could be accessed by callbacks.
 static GLuint shader_program;
 static glm::mat4 projection_trans;
-
 
 static int window_width = 800;
 static int window_height = 600;
@@ -47,6 +47,8 @@ static float look_h_angle = -M_PI_2f32 * 1.5f;
 static float look_v_angle = M_PI_2f32 * 1.5f;
 
 static glm::vec3 selected_color;
+
+static LineDrawer drawer;
 
 int main() {
     //Initialize window framework
@@ -362,7 +364,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     // Right button for vertex selection is only for testing, it may change in the future.
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         glm::vec3 intersection = xy_plane_intersection(position, look_direction);
-        printf("%f %f %f\n", intersection.x, intersection.y, intersection.z);
+        drawer.add_to_list(intersection);
+        drawer.print_list();
     }
 }
 

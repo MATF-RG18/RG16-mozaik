@@ -7,4 +7,4 @@ link_libraries(GL)
 link_libraries(GLEW)
 link_libraries(glfw)
 
-add_executable(rg16_mozaik src/main.cpp src/color_sphere.cpp src/color_sphere.hpp src/grid.hpp src/grid.cpp src/mozaik_globals.hpp src/geometry.cpp src/geometry.hpp)
+add_executable(rg16_mozaik src/main.cpp src/color_sphere.cpp src/color_sphere.hpp src/grid.hpp src/grid.cpp src/mozaik_globals.hpp src/geometry.cpp src/geometry.hpp src/line_drawer.cpp src/line_drawer.hpp)
