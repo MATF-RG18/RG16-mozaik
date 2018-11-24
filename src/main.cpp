@@ -48,7 +48,7 @@ static float look_v_angle = M_PI_2f32 * 1.5f;
 
 static glm::vec3 selected_color;
 
-static LineDrawer drawer;
+static LineDrawer line_drawer;
 
 int main() {
     //Initialize window framework
@@ -107,11 +107,20 @@ int main() {
         0.02f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
     };
 
+    // The maximum amount of line drawer vertices.
+    GLint line_drawer_buffer_size = 1000 * ATTR_COUNT;
     // Static draw because data is written once and used many times.
-    glBufferData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(sphere_vertices) + sizeof(crosshair_vertices), nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,
+            sizeof(grid_vertices) +
+            sizeof(sphere_vertices) +
+            sizeof(crosshair_vertices) +
+            line_drawer_buffer_size,
+            nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(grid_vertices), grid_vertices);
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(grid_vertices), sizeof(sphere_vertices), sphere_vertices);
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(sphere_vertices), sizeof(crosshair_vertices), crosshair_vertices);
+
+    line_drawer.vertex_buffer_offset = sizeof(grid_vertices) + sizeof(sphere_vertices) + sizeof(crosshair_vertices);
 
     GLuint element_buffer;
     glGenBuffers(1, &element_buffer);
@@ -194,6 +203,10 @@ int main() {
         glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
                                  GL_UNSIGNED_INT, 0, (sizeof(grid_vertices)) / (ATTR_COUNT * sizeof(GLfloat)));
         glUniform1f(uniform_color_multiplier, 1.0f);
+
+        // Draw the lines
+        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+        glDrawArrays(GL_LINE_STRIP, line_drawer.vertex_buffer_offset / (ATTR_COUNT * sizeof(GLfloat)), line_drawer.num_of_elements());
 
         // Draw HUD
         // Model and View transformations are disabled, and projection transformation is set to orthogonal
@@ -364,8 +377,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     // Right button for vertex selection is only for testing, it may change in the future.
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         glm::vec3 intersection = xy_plane_intersection(position, look_direction);
-        drawer.add_to_list(intersection);
-        drawer.print_list();
+        line_drawer.add_to_list(intersection);
     }
 }
 
