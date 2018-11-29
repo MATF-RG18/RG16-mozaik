@@ -6,36 +6,14 @@
 #include <glm/mat4x4.hpp>
 
 class Shape {
-private:
-    GLfloat* vertex_buffer;
-    GLfloat* element_buffer;
-    GLfloat vertex_buffer_offset;
-    GLfloat element_buffer_offset;
-    glm::mat4 model_matrix;
 public:
-    /** Populate the buffers with data
-     *
-     * Populates the vertex buffer and (if applicable) element buffer.
-     *
-     * This function should update offsets after use.
-     *
-     * @param vertex_buffer
-     * @param element_buffer
-     * @param vertex_buffer_offset
-     * @param element_buffer_offset
-     */
-    virtual void populate_buffer(
-            GLuint vertex_buffer,
-            GLuint element_buffer,
-            GLfloat &vertex_buffer_offset,
-            GLfloat &element_buffer_offset) = 0;
-
-    /** Draws the shape.
-     *
-     *  This function is expected to be called in the main loop of the graphics
-     *  renderer, and should use OpenGL functions to do so.
-     */
-    virtual void draw_shape() = 0;
+    GLfloat* vertex_data;
+    GLfloat* element_data;
+    GLsizei vertex_data_size;
+    // -1 if the shape doesn't use the element buffer.
+    GLsizei element_data_size;
+    glm::mat4 model_matrix;
+    GLenum draw_mode;
 };
 
 #endif //RG16_MOZAIK_SHAPE_HPP
