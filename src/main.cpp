@@ -97,7 +97,7 @@ int main() {
      * drawn using the shape manager, and others are drawn manually. This is just a testing phase while transitioning
      * the objects to their separate classes */
     shape_manager->subscribe_shape(new Grid(100, glm::vec2(-10.0f), glm::vec2(10.0f)));
-    shape_manager->subscribe_shape(new ColorSphere());
+    shape_manager->subscribe_shape(new ColorSphere(33));
     shape_manager->subscribe_shape(new Lines());
     shape_manager->subscribe_shape(new Crosshair());
 
@@ -122,25 +122,20 @@ int main() {
         0.02f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
     };
 
-    // The maximum amount of line drawer vertices.
-    GLint line_drawer_buffer_size = 1000 * ATTR_COUNT;
-    // Static draw because data is written once and used many times.
-    glBufferData(GL_ARRAY_BUFFER,
-            sizeof(grid_vertices) +
-            sizeof(sphere_vertices) +
-            sizeof(crosshair_vertices) +
-            line_drawer_buffer_size,
-            nullptr, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(grid_vertices), grid_vertices);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(grid_vertices), sizeof(sphere_vertices), sphere_vertices);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(sphere_vertices), sizeof(crosshair_vertices), crosshair_vertices);
-
     line_drawer.vertex_buffer_offset = sizeof(grid_vertices) + sizeof(sphere_vertices) + sizeof(crosshair_vertices);
 
     GLuint element_buffer;
     glGenBuffers(1, &element_buffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(sphere_indices), nullptr, GL_STATIC_DRAW);
+
+    shape_manager->populate_buffer();
+
+    // Buffer vertices
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(grid_vertices), grid_vertices);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(grid_vertices), sizeof(sphere_vertices), sphere_vertices);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(grid_vertices) + sizeof(sphere_vertices), sizeof(crosshair_vertices), crosshair_vertices);
+
+    // Buffer elements
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(sphere_indices), sphere_indices);
 
     // Initialize shaders

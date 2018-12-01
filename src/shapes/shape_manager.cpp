@@ -1,18 +1,23 @@
 #include <glm/ext.hpp>
+#include <cstdio>
 #include "shape_manager.hpp"
 #include "../mozaik_globals.hpp"
 
 void ShapeManager::subscribe_shape(Shape *shape) {
+    printf("Shape (ShapeManager): %li %li\n", static_cast<long>(shape->vertex_data_size),
+           static_cast<long>(shape->element_data_size));
     shape_list.push_back(shape);
     vertex_buffer_size += shape->vertex_data_size;
-    element_buffer_size += shape->element_data_size;
+    if (shape->element_data_size != -1) {
+        element_buffer_size += shape->element_data_size;
+    }
 }
 
 void ShapeManager::populate_buffer() {
     // Static draw because data is written once and used many times.
     glBufferData(GL_ARRAY_BUFFER, vertex_buffer_size, nullptr, GL_STATIC_DRAW);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, element_buffer_size, nullptr, GL_STATIC_DRAW);
-
+    /*
     GLsizei current_vertex_offset = 0;
     GLsizei current_element_offset = 0;
     for (auto shape : shape_list) {
@@ -26,6 +31,7 @@ void ShapeManager::populate_buffer() {
             current_element_offset += shape->element_data_size;
         }
     }
+     */
 }
 
 void ShapeManager::render() {

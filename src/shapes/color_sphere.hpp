@@ -4,7 +4,8 @@
 #include "shape.hpp"
 
 class ColorSphere : public Shape {
-
+public:
+    ColorSphere(unsigned lod);
 };
 
 

@@ -4,7 +4,12 @@
 #include "shape.hpp"
 
 class Grid : public Shape {
-
+private:
+    unsigned num_of_lines;
+    glm::vec2 start_vector;
+    glm::vec2 end_vector;
+public:
+    Grid(unsigned int num_of_lines, glm::vec2 start_vector, glm::vec2 end_vector, glm::mat4 model_matrix = glm::mat4(1.0f));
 };
 
 

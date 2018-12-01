@@ -4,7 +4,8 @@
 #include "shape.hpp"
 
 class Crosshair : public Shape {
-
+public:
+    Crosshair();
 };
 
 #endif //RG16_MOZAIK_CROSSHAIR_HPP

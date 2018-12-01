@@ -11,8 +11,6 @@
  */
 class ShapeManager {
 private:
-    GLuint vertex_buffer;
-    GLuint element_buffer;
     GLuint uniform_model;
     GLsizei vertex_buffer_size = 0;
     GLsizei element_buffer_size = 0;
