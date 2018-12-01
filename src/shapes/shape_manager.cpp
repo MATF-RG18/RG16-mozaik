@@ -4,8 +4,6 @@
 #include "../mozaik_globals.hpp"
 
 void ShapeManager::subscribe_shape(Shape *shape) {
-    printf("Shape (ShapeManager): %li %li\n", static_cast<long>(shape->vertex_data_size),
-           static_cast<long>(shape->element_data_size));
     shape_list.push_back(shape);
     vertex_buffer_size += shape->vertex_data_size;
     if (shape->element_data_size != -1) {
@@ -21,22 +19,24 @@ void ShapeManager::populate_buffer() {
     GLsizei current_vertex_offset = 0;
     GLsizei current_element_offset = 0;
 
-    // Buffering the grid only, for testing purposes.
-    Shape* shape = shape_list.front();
-    glBufferSubData(GL_ARRAY_BUFFER, current_vertex_offset, shape->vertex_data_size, shape->vertex_data);
+    int objects_rendered = 0;
 
-//    for (auto shape : shape_list) {
-//        glBufferSubData(GL_ARRAY_BUFFER, current_vertex_offset, shape->vertex_data_size, shape->vertex_data);
-//        current_vertex_offset += shape->vertex_data_size;
-//
-//        // If the shape uses element buffer
-//        if (shape->element_data_size != -1) {
-//            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, current_element_offset, shape->element_data_size,
-//                            shape->element_data);
-//            current_element_offset += shape->element_data_size;
-//        }
-//    }
+    for (auto shape : shape_list) {
+        // Buffering the grid and sphere only, for testing purposes.
+        if (objects_rendered < 2) {
+            glBufferSubData(GL_ARRAY_BUFFER, current_vertex_offset, shape->vertex_data_size, shape->vertex_data);
+            current_vertex_offset += shape->vertex_data_size;
 
+            // If the shape uses element buffer
+            if (shape->element_data_size != -1) {
+                glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, current_element_offset, shape->element_data_size,
+                                shape->element_data);
+                current_element_offset += shape->element_data_size;
+            }
+
+            objects_rendered++;
+        }
+    }
 }
 
 void ShapeManager::render() {

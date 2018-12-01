@@ -8,7 +8,7 @@
 class Shape {
 public:
     GLfloat* vertex_data;
-    GLfloat* element_data;
+    GLint* element_data;
     GLsizei vertex_data_size;
     // -1 if the shape doesn't use the element buffer.
     GLsizei element_data_size;

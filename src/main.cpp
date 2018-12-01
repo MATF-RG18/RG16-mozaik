@@ -12,8 +12,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/ext.hpp>
 
-#include "color_sphere.hpp"
-#include "grid.hpp"
 #include "mozaik_globals.hpp"
 #include "geometry.hpp"
 #include "line_drawer.hpp"
@@ -97,16 +95,9 @@ int main() {
      * drawn using the shape manager, and others are drawn manually. This is just a testing phase while transitioning
      * the objects to their separate classes */
     shape_manager->subscribe_shape(new Grid(100, glm::vec2(-10.0f), glm::vec2(10.0f)));
-    shape_manager->subscribe_shape(new ColorSphere(33));
+    shape_manager->subscribe_shape(new ColorSphere(33, 1, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.5f))));
     shape_manager->subscribe_shape(new Lines());
     shape_manager->subscribe_shape(new Crosshair());
-
-    // Create a sphere
-    unsigned lod = 33;
-    GLfloat sphere_vertices[sphere_vertex_count_hint(lod) * ATTR_COUNT];
-    GLuint sphere_indices[sphere_index_count_hint(lod)];
-    create_sphere(sphere_vertices, sphere_indices, 1.0f, lod);
-    glm::mat4 sphere_model_trans = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.5f));
 
     // Create a crosshair
     GLfloat crosshair_vertices[] = {
@@ -116,10 +107,12 @@ int main() {
         0.02f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
     };
 
-    // Transitioning to ShapeManager: temporary variable for the time being
+    // Transitioning to ShapeManager: temporary variables for the time being
     GLsizei grid_vertices_size = 100 * 2 * 2 * ATTR_COUNT * sizeof(GLfloat);
+    GLsizei sphere_vertices_size = (33 * (33 + 1) / 2) * 8 * ATTR_COUNT * sizeof(GLfloat);
+    GLsizei sphere_elements_size = static_cast<GLsizei>((pow(33 - 1, 2) * 3 * 8) * sizeof(GLint));
 
-    line_drawer.vertex_buffer_offset = grid_vertices_size + sizeof(sphere_vertices) + sizeof(crosshair_vertices);
+    line_drawer.vertex_buffer_offset = grid_vertices_size + sphere_vertices_size + sizeof(crosshair_vertices);
 
     GLuint element_buffer;
     glGenBuffers(1, &element_buffer);
@@ -128,11 +121,7 @@ int main() {
     shape_manager->populate_buffer();
 
     // Buffer vertices
-    glBufferSubData(GL_ARRAY_BUFFER, grid_vertices_size, sizeof(sphere_vertices), sphere_vertices);
-    glBufferSubData(GL_ARRAY_BUFFER, grid_vertices_size + sizeof(sphere_vertices), sizeof(crosshair_vertices), crosshair_vertices);
-
-    // Buffer elements
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(sphere_indices), sphere_indices);
+    glBufferSubData(GL_ARRAY_BUFFER, grid_vertices_size + sphere_vertices_size, sizeof(crosshair_vertices), crosshair_vertices);
 
     // Initialize shaders
     GLuint shader_program = init_shaders();
@@ -198,15 +187,15 @@ int main() {
         glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
         glDrawArrays(GL_LINES, 0, (grid_vertices_size) / (ATTR_COUNT * sizeof(GLfloat)));
         // Draw the sphere
-        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(sphere_model_trans));
-        glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
+        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.5f))));
+        glDrawElementsBaseVertex(GL_TRIANGLES, sphere_elements_size / sizeof(GLint),
                                  GL_UNSIGNED_INT, 0, (grid_vertices_size) / (ATTR_COUNT * sizeof(GLfloat)));
         // Draw the sphere reflection
         glUniform1f(uniform_color_multiplier, 0.1f);
         glm::mat4 reflection_trans = glm::mat4(1.0f);
         reflection_trans[2][2] = -1.0f;
-        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(reflection_trans * sphere_model_trans));
-        glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(sphere_indices) / sizeof(sphere_indices[0]),
+        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(reflection_trans * glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.5f))));
+        glDrawElementsBaseVertex(GL_TRIANGLES, sphere_elements_size / sizeof(GLint),
                                  GL_UNSIGNED_INT, 0, (grid_vertices_size) / (ATTR_COUNT * sizeof(GLfloat)));
         glUniform1f(uniform_color_multiplier, 1.0f);
 
@@ -228,7 +217,7 @@ int main() {
         // Depth test is temporarily disabled to avoid clipping with objects on the scene.
         glDisable(GL_DEPTH_TEST);
         //Draw the crosshair
-        glDrawArrays(GL_LINES, (grid_vertices_size + sizeof(sphere_vertices)) / (ATTR_COUNT * sizeof(GLfloat)), 4);
+        glDrawArrays(GL_LINES, (grid_vertices_size + sphere_vertices_size) / (ATTR_COUNT * sizeof(GLfloat)), 4);
         glEnable(GL_DEPTH_TEST);
         glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection_trans));
 
