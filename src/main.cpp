@@ -91,12 +91,10 @@ int main() {
 
     ShapeManager* shape_manager = new ShapeManager();
 
-    /* Creating spoof objects that are just used to hint the buffer sizes, but only the Grid object is actually
-     * drawn using the shape manager, and others are drawn manually. This is just a testing phase while transitioning
-     * the objects to their separate classes */
     shape_manager->subscribe_shape(new Grid(100, glm::vec2(-10.0f), glm::vec2(10.0f)));
     shape_manager->subscribe_shape(new ColorSphere(33, 1, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.5f))));
     shape_manager->subscribe_shape(new Crosshair());
+    // Lines is actually buffered outside of the ShapeManager (this is only a placeholder object).
     shape_manager->subscribe_shape(new Lines());
 
     // Transitioning to ShapeManager: temporary variables for the time being
@@ -173,13 +171,8 @@ int main() {
         glUniformMatrix4fv(uniform_view, 1, GL_FALSE, glm::value_ptr(view_trans));
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // Draw the grid
-        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-        glDrawArrays(GL_LINES, 0, (grid_vertices_size) / (ATTR_COUNT * sizeof(GLfloat)));
-        // Draw the sphere
-        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.5f))));
-        glDrawElementsBaseVertex(GL_TRIANGLES, sphere_elements_size / sizeof(GLint),
-                                 GL_UNSIGNED_INT, 0, (grid_vertices_size) / (ATTR_COUNT * sizeof(GLfloat)));
+        // Draw the grid and the sphere
+        shape_manager->render();
         // Draw the sphere reflection
         glUniform1f(uniform_color_multiplier, 0.1f);
         glm::mat4 reflection_trans = glm::mat4(1.0f);

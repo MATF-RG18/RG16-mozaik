@@ -43,27 +43,34 @@ void ShapeManager::populate_buffer() {
 void ShapeManager::render() {
     GLint vertex_buffer_offset = 0;
     GLint element_buffer_offset = 0;
-    for (auto shape : shape_list) {
-        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(shape->model_matrix));
 
-        // If the shape uses the element buffer
-        if (shape->element_data_size != -1) {
-            glDrawElementsBaseVertex(
-                    shape->draw_mode,
-                    shape->element_data_size / sizeof(shape->element_data[0]),
-                    GL_UNSIGNED_INT,
-                    reinterpret_cast<const void *>(element_buffer_offset),
-                    vertex_buffer_offset
-            );
-            element_buffer_offset += element_buffer_size;
-            vertex_buffer_offset += vertex_buffer_size;
-        } else {
-            glDrawArrays(
-                    shape->draw_mode,
-                    vertex_buffer_offset,
-                    shape->vertex_data_size / (ATTR_COUNT * sizeof(shape->vertex_data[0]))
-            );
-            vertex_buffer_offset += shape->vertex_data_size;
+    short objects_rendered = 0;
+
+    for (auto shape : shape_list) {
+        // Render just the grid (testing)
+        if (objects_rendered < 2) {
+            glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(shape->model_matrix));
+
+            // If the shape uses the element buffer
+            if (shape->element_data_size != -1) {
+                glDrawElementsBaseVertex(
+                        shape->draw_mode,
+                        shape->element_data_size / sizeof(shape->element_data[0]),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const void *>(shape->element_buffer_offset),
+                        static_cast<GLint>(shape->vertex_buffer_offset / (ATTR_COUNT * sizeof(GLfloat)))
+                );
+                element_buffer_offset += element_buffer_size;
+                vertex_buffer_offset += vertex_buffer_size;
+            } else {
+                glDrawArrays(
+                        shape->draw_mode,
+                        static_cast<GLint>(shape->vertex_buffer_offset),
+                        shape->vertex_data_size / (ATTR_COUNT * sizeof(shape->vertex_data[0]))
+                );
+                vertex_buffer_offset += shape->vertex_data_size;
+            }
+            objects_rendered++;
         }
     }
 }
