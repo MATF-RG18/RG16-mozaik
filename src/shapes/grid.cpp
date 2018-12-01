@@ -14,9 +14,6 @@ Grid::Grid(
     // num of lines * 2 sets of parallel lines * 2 vertices each * attribute count
     vertex_data = new GLfloat[num_of_lines * 2 * 2 * ATTR_COUNT];
     vertex_data_size = num_of_lines * 2 * 2 * ATTR_COUNT * sizeof(GLfloat);
-    element_data_size = -1;
-
-
 
     GLfloat x_spacing = (end_vector.x - start_vector.x) / (num_of_lines - 1);
     GLfloat y_spacing = (end_vector.y - start_vector.y) / (num_of_lines - 1);

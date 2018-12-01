@@ -11,7 +11,7 @@ public:
     GLint* element_data;
     GLsizei vertex_data_size;
     // -1 if the shape doesn't use the element buffer.
-    GLsizei element_data_size;
+    GLsizei element_data_size = -1;
     glm::mat4 model_matrix;
     GLenum draw_mode;
 };

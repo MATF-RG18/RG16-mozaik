@@ -3,5 +3,4 @@
 
 Crosshair::Crosshair() {
     vertex_data_size = 4 * ATTR_COUNT * sizeof(GLfloat);
-    element_data_size = -1;
 }
