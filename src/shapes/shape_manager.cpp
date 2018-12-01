@@ -22,8 +22,8 @@ void ShapeManager::populate_buffer() {
     int objects_rendered = 0;
 
     for (auto shape : shape_list) {
-        // Buffering the grid and sphere only, for testing purposes.
-        if (objects_rendered < 2) {
+        // Buffering the grid, sphere and crosshair only, for testing purposes.
+        if (objects_rendered < 3) {
             shape->vertex_buffer_offset = current_vertex_offset;
             glBufferSubData(GL_ARRAY_BUFFER, shape->vertex_buffer_offset, shape->vertex_data_size, shape->vertex_data);
             current_vertex_offset += shape->vertex_data_size;

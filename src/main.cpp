@@ -96,32 +96,22 @@ int main() {
      * the objects to their separate classes */
     shape_manager->subscribe_shape(new Grid(100, glm::vec2(-10.0f), glm::vec2(10.0f)));
     shape_manager->subscribe_shape(new ColorSphere(33, 1, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.5f))));
-    shape_manager->subscribe_shape(new Lines());
     shape_manager->subscribe_shape(new Crosshair());
-
-    // Create a crosshair
-    GLfloat crosshair_vertices[] = {
-        0.0f, -0.02f, 0.0f, 1.0f, 1.0f, 1.0f,
-        0.0f, 0.02f, 0.0f, 1.0f, 1.0f, 1.0f,
-        -0.02f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-        0.02f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-    };
+    shape_manager->subscribe_shape(new Lines());
 
     // Transitioning to ShapeManager: temporary variables for the time being
     GLsizei grid_vertices_size = 100 * 2 * 2 * ATTR_COUNT * sizeof(GLfloat);
     GLsizei sphere_vertices_size = (33 * (33 + 1) / 2) * 8 * ATTR_COUNT * sizeof(GLfloat);
     GLsizei sphere_elements_size = static_cast<GLsizei>((pow(33 - 1, 2) * 3 * 8) * sizeof(GLint));
+    GLsizei crosshair_vertices_size = 4 * ATTR_COUNT * sizeof(GLfloat);
 
-    line_drawer.vertex_buffer_offset = grid_vertices_size + sphere_vertices_size + sizeof(crosshair_vertices);
+    line_drawer.vertex_buffer_offset = grid_vertices_size + sphere_vertices_size + crosshair_vertices_size;
 
     GLuint element_buffer;
     glGenBuffers(1, &element_buffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer);
 
     shape_manager->populate_buffer();
-
-    // Buffer vertices
-    glBufferSubData(GL_ARRAY_BUFFER, grid_vertices_size + sphere_vertices_size, sizeof(crosshair_vertices), crosshair_vertices);
 
     // Initialize shaders
     GLuint shader_program = init_shaders();
