@@ -92,7 +92,10 @@ int main() {
     ShapeManager* shape_manager = new ShapeManager();
 
     shape_manager->subscribe_shape(new Grid(100, glm::vec2(-10.0f), glm::vec2(10.0f)));
-    shape_manager->subscribe_shape(new ColorSphere(33, 1, glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.5f))));
+
+    glm::mat4 default_color_sphere_trans = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.5f));
+    ColorSphere* color_sphere = new ColorSphere(33, 1, default_color_sphere_trans);
+    shape_manager->subscribe_shape(color_sphere);
     shape_manager->subscribe_shape(new Crosshair());
     // Lines is actually buffered outside of the ShapeManager (this is only a placeholder object).
     shape_manager->subscribe_shape(new Lines());
@@ -172,14 +175,16 @@ int main() {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // Draw the grid and the sphere
-        shape_manager->render();
+        color_sphere->model_matrix = default_color_sphere_trans;
+        shape_manager->render(0, 2);
         // Draw the sphere reflection
+        // Make the color dimmer
         glUniform1f(uniform_color_multiplier, 0.1f);
+        // Z = 0 reflection
         glm::mat4 reflection_trans = glm::mat4(1.0f);
         reflection_trans[2][2] = -1.0f;
-        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(reflection_trans * glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.5f))));
-        glDrawElementsBaseVertex(GL_TRIANGLES, sphere_elements_size / sizeof(GLint),
-                                 GL_UNSIGNED_INT, 0, (grid_vertices_size) / (ATTR_COUNT * sizeof(GLfloat)));
+        color_sphere->model_matrix = reflection_trans * color_sphere->model_matrix;
+        shape_manager->render(1, 2);
         glUniform1f(uniform_color_multiplier, 1.0f);
 
         // Draw the lines
