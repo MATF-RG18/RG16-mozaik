@@ -17,6 +17,11 @@
 #include "mozaik_globals.hpp"
 #include "geometry.hpp"
 #include "line_drawer.hpp"
+#include "shapes/grid.hpp"
+#include "shapes/color_sphere.hpp"
+#include "shapes/lines.hpp"
+#include "shapes/crosshair.hpp"
+#include "shapes/shape_manager.hpp"
 
 GLuint init_shaders();
 static void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, int mods);
@@ -85,6 +90,16 @@ int main() {
     GLuint vertex_buffer;
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+
+    ShapeManager* shape_manager = new ShapeManager();
+
+    /* Creating spoof objects that are just used to hint the buffer sizes, but only the Grid object is actually
+     * drawn using the shape manager, and others are drawn manually. This is just a testing phase while transitioning
+     * the objects to their separate classes */
+    shape_manager->subscribe_shape(new Grid(100, glm::vec2(-10.0f), glm::vec2(10.0f)));
+    shape_manager->subscribe_shape(new ColorSphere());
+    shape_manager->subscribe_shape(new Lines());
+    shape_manager->subscribe_shape(new Crosshair());
 
     // Create a grid
     unsigned num_of_lines = 100;

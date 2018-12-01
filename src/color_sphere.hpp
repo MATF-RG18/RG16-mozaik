@@ -1,5 +1,5 @@
-#ifndef RG16_MOZAIK_COLOR_SPHERE_HPP
-#define RG16_MOZAIK_COLOR_SPHERE_HPP
+#ifndef RG16_MOZAIK_COLOR_SPHERE_COMPAT_HPP
+#define RG16_MOZAIK_COLOR_SPHERE_COMPAT_HPP
 
 #include <GL/glew.h>
 #include <glm/vec3.hpp>
@@ -32,4 +32,4 @@ unsigned sphere_vertex_count_hint(unsigned lod);
 /** See sphere_vertex_count_hint
  */
 unsigned sphere_index_count_hint(unsigned lod);
-#endif //RG16_MOZAIK_COLOR_SPHERE_HPP
+#endif //RG16_MOZAIK_COLOR_SPHERE_COMPAT_HPP

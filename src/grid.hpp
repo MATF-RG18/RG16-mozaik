@@ -1,5 +1,5 @@
-#ifndef RG16_MOZAIK_GRID_HPP
-#define RG16_MOZAIK_GRID_HPP
+#ifndef RG16_MOZAIK_GRID_COMPAT_HPP
+#define RG16_MOZAIK_GRID_COMPAT_HPP
 
 #include <GL/glew.h>
 #include <glm/vec2.hpp>
@@ -21,4 +21,4 @@
 void create_grid(GLfloat vertex_buffer[], unsigned num_of_lines, glm::vec2 bottom_left, glm::vec2 top_right);
 
 unsigned grid_vertex_count_hint(unsigned lines);
-#endif //RG16_MOZAIK_GRID_HPP
+#endif //RG16_MOZAIK_GRID_COMPAT_HPP
