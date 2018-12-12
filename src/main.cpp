@@ -20,6 +20,7 @@
 #include "shapes/lines.hpp"
 #include "shapes/crosshair.hpp"
 #include "shapes/shape_manager.hpp"
+#include "algorithms/intersection_detection.hpp"
 
 GLuint init_shaders();
 static void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, int mods);
@@ -79,6 +80,10 @@ int main() {
     // Initialize GLEW
     glewExperimental = GL_TRUE;
     glewInit();
+
+    //Testing intersection detection:
+    auto spoof_vector = std::vector<glm::vec2>();
+    detect_intersections(spoof_vector);
 
     // Initialize buffers
     GLuint vertex_array_buffer;

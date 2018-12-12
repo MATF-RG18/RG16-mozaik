@@ -1,5 +1,5 @@
 #include "intersection_detection.hpp"
-
+#include <cstdio>
 /* Solve a system of linear equations:
  * a1x + a2y = a3
  * b1x + b2y = b3
@@ -7,6 +7,37 @@
 static std::pair<float, float> cramers_rule(float a1, float a2, float a3, float b1, float b2, float b3, bool &unique_solution);
 
 std::vector<glm::vec2> detect_intersections(std::vector<glm::vec2> &line_segments) {
+    //Testing
+    // Line segments A-B and C-D
+    glm::vec2 pointA = glm::vec2(0.0f, 0.0f);
+    glm::vec2 pointB = glm::vec2(2.0f, 2.0f);
+    glm::vec2 pointC = glm::vec2(0.0f, 2.0f);
+    glm::vec2 pointD = glm::vec2(2.0f, 0.0f);
+    
+    bool unique_solution;
+    // t*(xB - xA) + p*(xC - xD) = xC - xA
+    // t*(yB - yA) + p*(yC - yD) = yC - yA
+    std::pair<float, float> intersection_params = cramers_rule(
+        pointB.x - pointA.x, pointC.x - pointD.x, pointC.x - pointA.x,
+        pointB.y - pointA.y, pointC.y - pointD.y, pointC.y - pointA.y,
+        unique_solution
+    );
+
+    //Expected intersection at (1, 1)
+    if (unique_solution) {
+        if (intersection_params.first >= 0 && intersection_params.first <= 1
+            && intersection_params.second >= 0 && intersection_params.second <= 1) {
+            // intersection = A + t(B-A)
+            glm::vec2 intersection = pointA + intersection_params.first * (pointB - pointA);
+            printf("Intersection at: (%f, %f)\n", intersection.x, intersection.y);
+        } else {
+            printf("Unique solution, parameters out of bounds: %f, %f\n", intersection_params.first,
+                   intersection_params.second);
+        }
+    } else {
+        printf("Not a unique solution\n");
+    }
+
     return std::vector<glm::vec2>();
 }
 
