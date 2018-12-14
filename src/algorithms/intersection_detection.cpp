@@ -1,5 +1,23 @@
 #include "intersection_detection.hpp"
 #include <cstdio>
+
+class LineSegment {
+    glm::vec2 start_point;
+    glm::vec2 end_point;
+};
+
+enum OrientationRestriction {
+    CLOCKWISE, COUNTERCLOCKWISE, NONE
+};
+
+struct IntersectionInfo {
+    glm::vec2 intersection_point;
+    // Intersecting segment id
+    int segment_id;
+    // Parameter of the point on the intersecting segment
+    float param;
+};
+
 /* Solve a system of linear equations:
  * a1x + a2y = a3
  * b1x + b2y = b3
