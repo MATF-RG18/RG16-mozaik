@@ -1,11 +1,6 @@
 #include "intersection_detection.hpp"
 #include <cstdio>
 
-class LineSegment {
-    glm::vec2 start_point;
-    glm::vec2 end_point;
-};
-
 enum OrientationRestriction {
     CLOCKWISE, COUNTERCLOCKWISE, NONE
 };
