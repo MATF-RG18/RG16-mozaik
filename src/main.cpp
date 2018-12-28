@@ -14,13 +14,11 @@
 
 #include "mozaik_globals.hpp"
 #include "geometry.hpp"
-#include "line_drawer.hpp"
 #include "shapes/grid.hpp"
 #include "shapes/color_sphere.hpp"
 #include "shapes/lines.hpp"
 #include "shapes/crosshair.hpp"
 #include "shapes/shape_manager.hpp"
-#include "algorithms/intersection_detection.hpp"
 
 GLuint init_shaders();
 static void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, int mods);
@@ -52,8 +50,6 @@ static float look_v_angle = M_PI_2f32 * 1.5f;
 
 static glm::vec3 selected_color;
 
-static LineDrawer line_drawer;
-
 int main() {
     //Initialize window framework
     glfwInit();
@@ -81,10 +77,6 @@ int main() {
     glewExperimental = GL_TRUE;
     glewInit();
 
-    //Testing intersection detection:
-    auto spoof_vector = std::vector<glm::vec2>();
-    detect_intersections(spoof_vector);
-
     // Initialize buffers
     GLuint vertex_array_buffer;
     glGenVertexArrays(1, &vertex_array_buffer);
@@ -110,8 +102,6 @@ int main() {
     GLsizei sphere_vertices_size = (33 * (33 + 1) / 2) * 8 * ATTR_COUNT * sizeof(GLfloat);
     GLsizei sphere_elements_size = static_cast<GLsizei>((pow(33 - 1, 2) * 3 * 8) * sizeof(GLint));
     GLsizei crosshair_vertices_size = 4 * ATTR_COUNT * sizeof(GLfloat);
-
-    line_drawer.vertex_buffer_offset = grid_vertices_size + sphere_vertices_size + crosshair_vertices_size;
 
     GLuint element_buffer;
     glGenBuffers(1, &element_buffer);
@@ -191,10 +181,6 @@ int main() {
         color_sphere->model_matrix = reflection_trans * color_sphere->model_matrix;
         shape_manager->render(1, 2);
         glUniform1f(uniform_color_multiplier, 1.0f);
-
-        // Draw the lines
-        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-        glDrawArrays(GL_LINE_STRIP, line_drawer.vertex_buffer_offset / (ATTR_COUNT * sizeof(GLfloat)), line_drawer.num_of_elements());
 
         // Draw HUD
         // Model and View transformations are disabled, and projection transformation is set to orthogonal
@@ -365,7 +351,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     // Right button for vertex selection is only for testing, it may change in the future.
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         glm::vec3 intersection = xy_plane_intersection(position, look_direction);
-        line_drawer.add_to_list(intersection);
     }
 }
 
