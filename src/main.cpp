@@ -20,7 +20,13 @@
 #include "shapes/crosshair.hpp"
 #include "shapes/shape_manager.hpp"
 
-GLuint init_shaders();
+/** Initialize shader program
+ *
+ * @return
+ * A complied shader program, if no errors occured.
+ */
+static GLuint init_shaders();
+
 static void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, int mods);
 static void cursor_pos_callback(GLFWwindow* window, double x_pos, double y_pos);
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
@@ -30,6 +36,7 @@ static float clamp(float value, float min, float max);
 
 // Shader program made global, so it could be accessed by callbacks.
 static GLuint shader_program;
+
 static glm::mat4 projection_trans;
 
 static int window_width = 800;
@@ -65,6 +72,7 @@ int main() {
     // Hide the cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
+    // Set callbacks
     glfwSetKeyCallback(window, keyboard_callback);
     glfwSetCursorPosCallback(window, cursor_pos_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
@@ -94,8 +102,6 @@ int main() {
     ColorSphere* color_sphere = new ColorSphere(33, 1, default_color_sphere_trans);
     shape_manager->subscribe_shape(color_sphere);
     shape_manager->subscribe_shape(new Crosshair());
-    // Lines is actually buffered outside of the ShapeManager (this is only a placeholder object).
-    shape_manager->subscribe_shape(new Lines());
 
     // Transitioning to ShapeManager: temporary variables for the time being
     GLsizei grid_vertices_size = 100 * 2 * 2 * ATTR_COUNT * sizeof(GLfloat);
@@ -103,10 +109,12 @@ int main() {
     GLsizei sphere_elements_size = static_cast<GLsizei>((pow(33 - 1, 2) * 3 * 8) * sizeof(GLint));
     GLsizei crosshair_vertices_size = 4 * ATTR_COUNT * sizeof(GLfloat);
 
+    // Initializing element buffer (element buffer holds the information about indices of to-be-drawn primitives).
     GLuint element_buffer;
     glGenBuffers(1, &element_buffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer);
 
+    // Populates the vertex buffer and the element buffer
     shape_manager->populate_buffer();
 
     // Initialize shaders
@@ -138,6 +146,7 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
+    // Used to make the sphere reflection less vibrant (to simulate a semi-reflective surface).
     GLint uniform_color_multiplier = glGetUniformLocation(shader_program, "color_multiplier");
     glUniform1f(uniform_color_multiplier, 1.0f);
 
@@ -145,25 +154,26 @@ int main() {
     // Main loop
     while (!glfwWindowShouldClose(window)) {
 
-        double current_time = glfwGetTime();
-        float delta_time = static_cast<float>(current_time - old_time);
-        old_time = current_time;
-
         // Rotate movement vector to match look direction
 
-        glm::vec3 ref_look_direction = look_direction;
-        ref_look_direction.z = 0; // XY projection
-        ref_look_direction = glm::normalize(ref_look_direction);
-        float angle = determine_angle(ref_look_direction) + M_PIf32;
+        glm::vec3 current_look_direction = look_direction;
+        current_look_direction.z = 0; // XY projection
+        current_look_direction = glm::normalize(current_look_direction);
+        float angle = determine_angle(current_look_direction) + M_PIf32;
 
         glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 0.0f, 1.0f));
         glm::vec3 rotated_vector = rotation_matrix * glm::vec4(normalized_movement_vector, 1.0f);
 
+        double current_time = glfwGetTime();
+        float delta_time = static_cast<float>(current_time - old_time);
+        old_time = current_time;
+
+        // Delta time ensures uniform, frame-count-independent movement
         position += rotated_vector * delta_time * movement_speed;
 
         glm::mat4 view_trans = glm::lookAt(
                 position,                    // Eye coordinates
-                position + look_direction, // Point to look at
+                position + look_direction,   // Point to look at
                 glm::vec3(0.0f, 0.0f, 1.0f)  // Up vector
         );
         glUniformMatrix4fv(uniform_view, 1, GL_FALSE, glm::value_ptr(view_trans));
@@ -201,16 +211,17 @@ int main() {
         glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection_trans));
 
         glfwSwapBuffers(window);
+        // Polling event causes frames to only be rendered on events (i.e. user input)
         glfwPollEvents();
     }
 
     glfwTerminate();
 
+    // 0 if okay, != 0 if any error occurred.
     return glGetError();
 }
 
 GLuint init_shaders() {
-    // TODO: move to a file in the future
     const char* vertex_shader_source = R"glsl(
         #version 150 core
 
@@ -245,7 +256,6 @@ GLuint init_shaders() {
         printf("Vertex buffer compilation failed:\n%s", buffer);
     }
 
-    // TODO: move to a file in the future
     const char* fragment_shader_source = R"glsl(
         #version 150 core
 
@@ -289,6 +299,7 @@ GLuint init_shaders() {
 #pragma clang diagnostic ignored "-Wunused-parameter" // Ignore unused parameters for all callbacks.
 void keyboard_callback(GLFWwindow *window, int key, int scan_code, int action, int mods) {
 
+    // Faster movement speed if Shift is pressed.
     movement_speed = mods & GLFW_MOD_SHIFT ? 3.0f : 1.0f;
     if (key == GLFW_KEY_W) {
         if (action == GLFW_PRESS) {
@@ -344,6 +355,7 @@ void cursor_pos_callback(GLFWwindow *window, double x_pos, double y_pos) {
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    // Left button sources the pixel color from the middle of the screen.
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         glReadPixels(window_width / 2, window_height / 2, 1, 1, GL_RGB, GL_FLOAT, &selected_color);
     }
@@ -351,6 +363,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     // Right button for vertex selection is only for testing, it may change in the future.
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         glm::vec3 intersection = xy_plane_intersection(position, look_direction);
+        // TODO paint a tile when the right button is clicked.
     }
 }
 
