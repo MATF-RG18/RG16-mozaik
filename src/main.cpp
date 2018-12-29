@@ -103,12 +103,6 @@ int main() {
     shape_manager->subscribe_shape(color_sphere);
     shape_manager->subscribe_shape(new Crosshair());
 
-    // Transitioning to ShapeManager: temporary variables for the time being
-    GLsizei grid_vertices_size = 100 * 2 * 2 * ATTR_COUNT * sizeof(GLfloat);
-    GLsizei sphere_vertices_size = (33 * (33 + 1) / 2) * 8 * ATTR_COUNT * sizeof(GLfloat);
-    GLsizei sphere_elements_size = static_cast<GLsizei>((pow(33 - 1, 2) * 3 * 8) * sizeof(GLint));
-    GLsizei crosshair_vertices_size = 4 * ATTR_COUNT * sizeof(GLfloat);
-
     // Initializing element buffer (element buffer holds the information about indices of to-be-drawn primitives).
     GLuint element_buffer;
     glGenBuffers(1, &element_buffer);
@@ -206,8 +200,7 @@ int main() {
         glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(ortho));
         // Depth test is temporarily disabled to avoid clipping with objects on the scene.
         glDisable(GL_DEPTH_TEST);
-        //Draw the crosshair
-        glDrawArrays(GL_LINES, (grid_vertices_size + sphere_vertices_size) / (ATTR_COUNT * sizeof(GLfloat)), 4);
+        shape_manager->render(CROSSHAIR);
         glEnable(GL_DEPTH_TEST);
         glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection_trans));
 

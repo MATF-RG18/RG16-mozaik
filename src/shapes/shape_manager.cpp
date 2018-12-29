@@ -57,7 +57,7 @@ void ShapeManager::render(ShapeType shape_type) {
             } else {
                 glDrawArrays(
                         shape->draw_mode,
-                        static_cast<GLint>(shape->vertex_buffer_offset),
+                        static_cast<GLint>(shape->vertex_buffer_offset) / (ATTR_COUNT * sizeof(GLfloat)) ,
                         shape->vertex_data_size / (ATTR_COUNT * sizeof(shape->vertex_data[0]))
                 );
             }
