@@ -40,27 +40,27 @@ void ShapeManager::populate_buffer() {
     }
 }
 
-void ShapeManager::render(short from, short to) {
+void ShapeManager::render(ShapeType shape_type) {
+    for (auto shape : shapes) {
+        if (shape->shape_type == shape_type) {
+            glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(shape->model_matrix));
 
-    for (int i = from; i < to; i++) {
-        auto shape = shapes[i];
-        glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(shape->model_matrix));
-
-        // If the shape uses the element buffer
-        if (shape->element_data_size != -1) {
-            glDrawElementsBaseVertex(
-                    shape->draw_mode,
-                    shape->element_data_size / sizeof(shape->element_data[0]),
-                    GL_UNSIGNED_INT,
-                    reinterpret_cast<const void *>(shape->element_buffer_offset),
-                    static_cast<GLint>(shape->vertex_buffer_offset / (ATTR_COUNT * sizeof(GLfloat)))
-            );
-        } else {
-            glDrawArrays(
-                    shape->draw_mode,
-                    static_cast<GLint>(shape->vertex_buffer_offset),
-                    shape->vertex_data_size / (ATTR_COUNT * sizeof(shape->vertex_data[0]))
-            );
+            // If the shape uses the element buffer
+            if (shape->element_data_size != -1) {
+                glDrawElementsBaseVertex(
+                        shape->draw_mode,
+                        shape->element_data_size / sizeof(shape->element_data[0]),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const void *>(shape->element_buffer_offset),
+                        static_cast<GLint>(shape->vertex_buffer_offset / (ATTR_COUNT * sizeof(GLfloat)))
+                );
+            } else {
+                glDrawArrays(
+                        shape->draw_mode,
+                        static_cast<GLint>(shape->vertex_buffer_offset),
+                        shape->vertex_data_size / (ATTR_COUNT * sizeof(shape->vertex_data[0]))
+                );
+            }
         }
     }
 }

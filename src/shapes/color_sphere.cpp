@@ -3,9 +3,9 @@
 #include "../mozaik_globals.hpp"
 #include "../geometry.hpp"
 
-ColorSphere::ColorSphere(unsigned lod, GLfloat radius, glm::mat4 model_trans) {
-    draw_mode = GL_TRIANGLES;
-    this->model_matrix = model_trans;
+ColorSphere::ColorSphere(unsigned lod, GLfloat radius, glm::mat4 model_trans)
+    : Shape(model_trans, GL_TRIANGLES, SPHERE) {
+
     // Number of vertices per one octahedron side * 8 sides of an octahedron
     vertex_data = new GLfloat[triangle_vertex_data_size_hint(lod) * 8 * ATTR_COUNT];
     vertex_data_size = triangle_vertex_data_size_hint(lod) * 8 * ATTR_COUNT * sizeof(GLfloat);

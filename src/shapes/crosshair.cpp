@@ -3,7 +3,9 @@
 #include "crosshair.hpp"
 #include "../mozaik_globals.hpp"
 
-Crosshair::Crosshair() {
+Crosshair::Crosshair()
+    : Shape(glm::mat4(1.0f), GL_LINES, CROSSHAIR) {
+
     vertex_data_size = 4 * ATTR_COUNT * sizeof(GLfloat);
     GLfloat vertex_data_array[] = {
             0.0f, -0.02f, 0.0f, 1.0f, 1.0f, 1.0f,

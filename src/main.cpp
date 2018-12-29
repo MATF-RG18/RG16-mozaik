@@ -16,14 +16,14 @@
 #include "geometry.hpp"
 #include "shapes/grid.hpp"
 #include "shapes/color_sphere.hpp"
-#include "shapes/lines.hpp"
 #include "shapes/crosshair.hpp"
 #include "shapes/shape_manager.hpp"
+#include "shapes/tiles.hpp"
 
 /** Initialize shader program
  *
  * @return
- * A complied shader program, if no errors occured.
+ * A complied shader program, if no errors occurred.
  */
 static GLuint init_shaders();
 
@@ -181,7 +181,8 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // Draw the grid and the sphere
         color_sphere->model_matrix = default_color_sphere_trans;
-        shape_manager->render(0, 2);
+        shape_manager->render(GRID);
+        shape_manager->render(SPHERE);
         // Draw the sphere reflection
         // Make the color dimmer
         glUniform1f(uniform_color_multiplier, 0.1f);
@@ -189,7 +190,7 @@ int main() {
         glm::mat4 reflection_trans = glm::mat4(1.0f);
         reflection_trans[2][2] = -1.0f;
         color_sphere->model_matrix = reflection_trans * color_sphere->model_matrix;
-        shape_manager->render(1, 2);
+        shape_manager->render(SPHERE);
         glUniform1f(uniform_color_multiplier, 1.0f);
 
         // Draw HUD

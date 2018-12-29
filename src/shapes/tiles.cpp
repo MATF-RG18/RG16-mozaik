@@ -1,8 +1,8 @@
 #include "tiles.hpp"
 #include "../mozaik_globals.hpp"
 
-Tiles::Tiles() {
-    model_matrix = glm::mat4(1.0f);
+Tiles::Tiles()
+    : Shape(glm::mat4(1.0f), GL_TRIANGLES, TILES) {
     // TEST DATA
     GLfloat vertex_data_array[] = {
             0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,

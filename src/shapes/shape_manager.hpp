@@ -20,8 +20,8 @@ public:
     void subscribe_shape(Shape* shape);
     /** Allocates the appropriate space for the shapes and populates the buffer with their data. */
     void populate_buffer();
-    /** Renders the shapes */
-    void render(short from, short to);
+    /** Renders the shapes of the desired type */
+    void render(ShapeType shape_type);
 };
 
 
