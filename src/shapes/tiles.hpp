@@ -5,7 +5,10 @@
 
 class Tiles : public Shape {
 public:
-    Tiles();
+    Tiles(unsigned int num_of_lines, glm::vec2 start_vector, glm::vec2 end_vector);
+private:
+    void push_into_vertex_array(glm::vec2 vertex);
+
 };
 
 #endif //RG16_MOZAIK_TILES_HPP

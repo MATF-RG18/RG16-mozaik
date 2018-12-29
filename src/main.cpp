@@ -97,7 +97,9 @@ int main() {
     ShapeManager* shape_manager = new ShapeManager();
 
     shape_manager->subscribe_shape(new Grid(100, glm::vec2(-10.0f), glm::vec2(10.0f)));
+    shape_manager->subscribe_shape(new Tiles(99, glm::vec2(-10.0f), glm::vec2(10.0f)));
 
+    // Coordinates of the sphere center are (1, -1, 1.5)
     glm::mat4 default_color_sphere_trans = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.5f));
     ColorSphere* color_sphere = new ColorSphere(33, 1, default_color_sphere_trans);
     shape_manager->subscribe_shape(color_sphere);
@@ -177,6 +179,8 @@ int main() {
         color_sphere->model_matrix = default_color_sphere_trans;
         shape_manager->render(GRID);
         shape_manager->render(SPHERE);
+        glPointSize(3);
+        shape_manager->render(TILES);
         // Draw the sphere reflection
         // Make the color dimmer
         glUniform1f(uniform_color_multiplier, 0.1f);
