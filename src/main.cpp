@@ -34,8 +34,9 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 static float clamp(float value, float min, float max);
 
-// Shader program made global, so it could be accessed by callbacks.
+// Some variables made global, so they could be accessed by callbacks.
 static GLuint shader_program;
+static Tiles *tiles;
 
 static glm::mat4 projection_trans;
 
@@ -97,7 +98,8 @@ int main() {
     ShapeManager* shape_manager = new ShapeManager();
 
     shape_manager->subscribe_shape(new Grid(100, glm::vec2(-10.0f), glm::vec2(10.0f)));
-    shape_manager->subscribe_shape(new Tiles(99, glm::vec2(-10.0f), glm::vec2(10.0f)));
+    tiles = new Tiles(99, glm::vec3(-10.0f, -10.0f, 0.0f), glm::vec3(10.0f, 10.0f, 0.0f));
+    shape_manager->subscribe_shape(tiles);
 
     // Coordinates of the sphere center are (1, -1, 1.5)
     glm::mat4 default_color_sphere_trans = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.5f));
@@ -366,7 +368,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     // Right button for vertex selection is only for testing, it may change in the future.
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         glm::vec3 intersection = xy_plane_intersection(position, look_direction);
-        // TODO paint a tile when the right button is clicked.
+        tiles->color_a_tile(intersection, selected_color);
     }
 }
 
