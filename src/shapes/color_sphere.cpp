@@ -35,7 +35,7 @@ ColorSphere::ColorSphere(unsigned lod, GLfloat radius, glm::mat4 model_trans)
             // Vertex buffer entry
             for (int j = 0; j < lod; j++) {
                 for (int i = 0; i < lod - j; ++i) {
-                    glm::vec3 vector = origin + multiply(base1, i) + multiply(base2, j);
+                    glm::vec3 vector = origin + base1 * float(i) + base2 * float(j);
                     normalize(vector, radius);
                     glm::vec4 rot_vector = rotation_matrix * glm::vec4(vector, 1.0);
                     put_into_vertex_data(glm::vec3(rot_vector.x, rot_vector.y, rot_vector.z));
@@ -74,14 +74,7 @@ void ColorSphere::normalize(glm::vec3 &vector, GLfloat length) {
             powf(vector.y, 2) +
             powf(vector.z, 2)
     );
-    vector.operator*=(length / orig_length);
-}
-
-glm::vec3 ColorSphere::multiply(glm::vec3 vector, GLfloat factor) {
-    vector.x *= factor;
-    vector.y *= factor;
-    vector.z *= factor;
-    return vector;
+    vector *= length / orig_length;
 }
 
 void ColorSphere::put_into_vertex_data(glm::vec3 vertex) {

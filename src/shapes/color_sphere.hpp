@@ -14,8 +14,6 @@ class ColorSphere : public Shape {
 private:
     void normalize(glm::vec3 &vector, GLfloat length);
 
-    glm::vec3 multiply(glm::vec3 vector, GLfloat factor);
-
     /* Hint how many vertices will one octahedron triangle use. */
     unsigned triangle_vertex_data_size_hint(unsigned lod);
 

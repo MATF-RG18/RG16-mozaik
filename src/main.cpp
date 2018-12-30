@@ -366,7 +366,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         glReadPixels(window_width / 2 + 1, window_height / 2 + 1, 1, 1, GL_RGB, GL_FLOAT, &selected_color);
     }
 
-    // Right button for vertex selection is only for testing, it may change in the future.
+    // Right button paints the tiles in the selected_color
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         glm::vec3 intersection = xy_plane_intersection(position, look_direction);
         tiles->color_a_tile(intersection, selected_color);
