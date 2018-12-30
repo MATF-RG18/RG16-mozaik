@@ -362,7 +362,8 @@ void cursor_pos_callback(GLFWwindow *window, double x_pos, double y_pos) {
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     // Left button sources the pixel color from the middle of the screen.
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        glReadPixels(window_width / 2, window_height / 2, 1, 1, GL_RGB, GL_FLOAT, &selected_color);
+        // HACK: Position offset by 1 pixel, to avoid reading from the crosshair.
+        glReadPixels(window_width / 2 + 1, window_height / 2 + 1, 1, 1, GL_RGB, GL_FLOAT, &selected_color);
     }
 
     // Right button for vertex selection is only for testing, it may change in the future.
