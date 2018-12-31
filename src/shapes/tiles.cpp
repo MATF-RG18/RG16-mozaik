@@ -51,8 +51,7 @@ void Tiles::push_into_vertex_array(glm::vec2 vertex) {
 
     vertex_data[offset] = vertex.x;
     vertex_data[offset + 1] = vertex.y;
-    // A little bit less than zero, so it doesn't interfere with the Grid.
-    vertex_data[offset + 2] = -0.01f;
+    vertex_data[offset + 2] = 0.0f;
     vertex_data[offset + 3] = 0.0f;
     vertex_data[offset + 4] = 0.0f;
     vertex_data[offset + 5] = 0.0f;

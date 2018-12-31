@@ -267,7 +267,7 @@ GLuint init_shaders() {
             /* Black color means invalid data, so the fragment is not drawn */
             /* All tiles are initially black to mark them as "uncolored" */
             if (Color == vec3(0.0)) {
-                out_color = vec4(0.0);
+                discard;
             }
             out_color = vec4(Color, 1.0);
         }
