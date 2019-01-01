@@ -4,8 +4,8 @@
 U ovom projektu, korisnik bira boju sa sfere, gde je nijansa određena azimutnim uglom, a svetlina i jarkost boje
 visinskim uglom sfere. Korisnik zatim može da boji kvadrate u ravni, time formirajući sliku.
 
-## Prikaz (razvoj je u toku)
-![Screenshot](https://github.com/MATF-RG18/RG16-mozaik/blob/master/screenshots/screenshot.png)
+## Prikaz
+![Screenshot](https://github.com/MATF-RG18/RG16-mozaik/blob/master/wiki_files/report_screenshots/08.png)
 
 ## Kontrola
 * `W`, `A`, `S`, `D` za kretanje kroz prostor.
