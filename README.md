@@ -10,6 +10,8 @@ visinskim uglom sfere. Korisnik zatim može da boji kvadrate u ravni, time formi
 ## Kontrola
 * `W`, `A`, `S`, `D` za kretanje kroz prostor.
 * Kretanje pokazivačem za rotaciju kamere.
+* Levi klik za izbor boje
+* Desni klik za nanošenje boje na pločice. 
 
 ## Build
 
